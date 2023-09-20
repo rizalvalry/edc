@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/models/member.dart';
 import 'package:app_dart/src/models/member_detail.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+// validasi device from ZERO
 Future<String> buildDeviceAuthorizedURL() async {
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   String phoneImei = '';
@@ -29,7 +32,7 @@ Future<String> buildDeviceAuthorizedURL() async {
     api = iosInfo.systemVersion;
   }
 
-  String url = 'http://192.168.18.103/wartelsus/edc/device_authorized?'
+  String url = '${BaseUrl.deviceAuthorizedUrl}'
       'phoneimei=$phoneImei&'
       'device=$device&'
       'model=$model&'
@@ -39,18 +42,55 @@ Future<String> buildDeviceAuthorizedURL() async {
   return url;
 }
 
-Future<void> _sendRequestToLocalhostAPI(String imei, String model) async {
+// push notifications
+void sendRequestToLocalhostAPI(String imei, String model, String rc) async {
   try {
-    final url =
-        Uri.parse('http://192.168.18.106/api/?phoneimei=$imei&model=$model');
+    final url = Uri.parse(
+        '${BaseUrl.getNotifApiBaseUrl}?phoneimei=$imei&model=$model&rc=$rc');
+    print(url);
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      // final data = json.decode(response.body);
+      print("Notifikasi Berhasil di kirimkan");
     } else {
-      print('Gagal mengambil data dari URL http://192.168.18.106/api/');
+      print('Gagal mengambil data dari API Notifikasi');
     }
   } catch (e) {
     print('Terjadi kesalahan: $e');
   }
 }
+
+// Get User By IMEI
+// Future<String> buildDeviceAuthorizedIMEI() async {
+//   final url = await buildDeviceAuthorizedURL();
+//   final response = await http.get(Uri.parse(url));
+
+//   if (response.statusCode == 200) {
+//     final data = json.decode(response.body);
+//     final results = data['results'];
+
+//     if (results != null && results.isNotEmpty) {
+//       final imei = results[0]['phoneimei'];
+//       return imei;
+//     }
+//   }
+//   throw Exception('Failed to get IMEI from device authorized');
+// }
+
+// Simpan Data User By result IMEI
+Future<void> saveApiData(
+    String branchId, String userId, String loginName) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('userid', userId);
+  await prefs.setString('branchid', branchId);
+  await prefs.setString('loginname', loginName);
+}
+
+// Future<void> saveApiUrl(String apiUrl) async {
+//   final prefs = await SharedPreferences.getInstance();
+//   await prefs.setString('apiUrl', apiUrl);
+//   print(prefs);
+// }
+
+

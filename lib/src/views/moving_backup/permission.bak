@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:app_dart/main.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/imei.dart';
-import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
@@ -60,7 +59,6 @@ class _PermissionState extends State<Permission> {
   }
 
   Future<String> fetchData() async {
-    await BaseUrl.initialize(); // Inisialisasi BaseUrl dengan serverIpAddress
     final url = await buildDeviceAuthorizedURL();
     final response = await http.get(Uri.parse(url));
 
@@ -71,52 +69,16 @@ class _PermissionState extends State<Permission> {
       if (results != null && results.isNotEmpty) {
         final rc = results[0]['rc'];
         final responseMessage = results[0]['response'];
-        final kodeCabang = results[0]['kodecabang'];
-        final serverIpAddress = results[0]['serveripaddress'];
 
         // Cek jika respons adalah "Perangkat diizinkan"
         if (responseMessage == 'Perangkat diizinkan') {
-          print('============= Area Permission Diizinkan =============');
-          print('rc: $rc');
-          print('response: $responseMessage');
-          print('kodecabang: $kodeCabang');
-          print('serveripaddress: $serverIpAddress');
+          final phoneImei = await buildDeviceAuthorizedIMEI(); // Dapatkan IMEI
 
-          // Simpan data ke SharedPreferences
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('rc', rc);
-          await prefs.setString('responseMessage', responseMessage);
-          await prefs.setString('kodecabang', kodeCabang);
-          await prefs.setString('serveripaddress', serverIpAddress);
+          // Buat URL yang akan disimpan di SharedPreferences
+          final apiUrl = '${BaseUrl.getUserIdByImeiUrl()}?phoneimei=$phoneImei';
 
-          // Dapatkan data dari API
-          AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
-          String imei = androidInfo.androidId;
-          final apiUrl = await BaseUrl.getUserIdByImeiUrlDirectly(imei);
-          final responseApi = await http.get(Uri.parse(apiUrl));
-
-          if (responseApi.statusCode == 200) {
-            final data = json.decode(responseApi.body);
-            final resultsApi = data['results'];
-            if (resultsApi != null && resultsApi.isNotEmpty) {
-              final rc = resultsApi[0]['rc'];
-              final userid = resultsApi[0]['userid'];
-              final loginname = resultsApi[0]['loginname'];
-              final branchid = resultsApi[0]['branchid'];
-
-              // Simpan data ke SharedPreferences
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('userid', userid);
-              await prefs.setString('loginname', loginname);
-              await prefs.setString('branchid', branchid);
-
-              print(
-                  '============= Area Admin Diberi Otorisasi Penuh =============');
-              print(userid);
-              print(loginname);
-              print(branchid);
-            }
-          }
+          // Simpan URL ke SharedPreferences
+          await saveApiUrl(apiUrl);
 
           // Navigasi ke halaman MyApp
           Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -146,6 +108,41 @@ class _PermissionState extends State<Permission> {
 class CenteredTextWithBackgroundImage extends StatelessWidget {
   final String responseMessage; // Tambahkan parameter responseMessage
   final VoidCallback refreshData; // Tambahkan parameter refreshData
+
+// Future<void> sendOneSignal() async {
+//     const url =
+//         'http://192.168.18.103/wartelsus/edc/device_authorized?phoneimei=8de4562ad29e605d&device=JP-02&model=JP-02&api=8.1.0&devicetype=2';
+
+//     // Buat permintaan HTTP ke URL
+//     final response = await http.get(Uri.parse(url));
+
+//     if (response.statusCode == 200) {
+//       final message = response.body; // Pesan dari respon HTTP
+
+//       // Kirim notifikasi ke OneSignal
+//       final notification = OSCreateNotification(
+//         playerIds: [
+//           'ddf01a2d-4995-4ae5-8e35-9221a73b40af'
+//         ], // Ganti dengan Player ID yang sesuai
+//         content: message, // Isi notifikasi dengan pesan dari URL
+//         heading:
+//             'Ada Sebuah Permintaan Perangkat', // Ganti dengan judul yang sesuai
+//       );
+
+//       final result = await OneSignal.shared.postNotification(notification);
+
+//       if (result['success'] == true) {
+//         // Notifikasi berhasil dikirim
+//         print('Notifikasi berhasil dikirim.');
+//       } else {
+//         // Notifikasi gagal dikirim
+//         print('Notifikasi gagal dikirim.');
+//       }
+//     } else {
+//       // Gagal mengambil data dari URL
+//       print('Gagal mengambil data dari URL.');
+//     }
+//   }
 
   CenteredTextWithBackgroundImage({
     required this.responseMessage,

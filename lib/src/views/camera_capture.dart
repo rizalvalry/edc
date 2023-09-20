@@ -17,26 +17,31 @@ void main() async {
           firstCamera,
           ResolutionPreset.medium,
         ),
+        firstCamera: firstCamera, // Tambahkan firstCamera sebagai argumen
       ),
     ),
   );
 }
 
 class TakePictureScreen extends StatelessWidget {
-  final CameraController cameraController;
+  final CameraController? cameraController;
+  final CameraDescription firstCamera;
 
   const TakePictureScreen({
     Key? key,
     required this.cameraController,
+    required this.firstCamera, // Tambahkan parameter firstCamera
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final initializeControllerFuture = cameraController.initialize();
+    final initializeControllerFuture = (cameraController ??
+            CameraController(firstCamera, ResolutionPreset.medium))
+        .initialize();
 
     return WillPopScope(
       onWillPop: () async {
-        cameraController.dispose(); // Menghentikan dan me-"dispose" kamera
+        cameraController?.dispose(); // Menghentikan dan me-"dispose" kamera
         return true; // Izinkan pengguna untuk kembali
       },
       child: Scaffold(
@@ -45,7 +50,7 @@ class TakePictureScreen extends StatelessWidget {
           future: initializeControllerFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              return CameraPreview(cameraController);
+              return CameraPreview(cameraController!);
             } else {
               return const Center(child: CircularProgressIndicator());
             }
@@ -54,8 +59,9 @@ class TakePictureScreen extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             try {
-              await initializeControllerFuture;
-              final image = await cameraController.takePicture();
+              final image = await (cameraController ??
+                      CameraController(firstCamera, ResolutionPreset.medium))
+                  .takePicture();
 
               Navigator.of(context).push(
                 MaterialPageRoute(

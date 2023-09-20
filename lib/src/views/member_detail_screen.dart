@@ -1,15 +1,20 @@
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/models/member_detail.dart';
+// import 'package:app_dart/src/views/camera/camera_permission.dart';
 import 'package:app_dart/src/views/camera_capture.dart';
+import 'package:app_dart/src/views/topup/print_invoice.dart';
+import 'package:app_dart/src/views/topup/tag_read.dart';
+import 'package:app_dart/src/views/topup/topup_member.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:camera/camera.dart';
 import 'package:draggable_home/draggable_home.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:camera/camera.dart';
-import 'package:app_dart/src/controllers/member_controller.dart';
-
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:app_dart/src/views/form_row.dart';
+import 'package:app_dart/src/views/topup/nfc_session.dart';
 
 class MemberDetailScreen extends StatefulWidget {
   final String memberId;
@@ -20,10 +25,15 @@ class MemberDetailScreen extends StatefulWidget {
   _MemberDetailScreenState createState() => _MemberDetailScreenState();
 }
 
-class _MemberDetailScreenState extends State<MemberDetailScreen> {
+class _MemberDetailScreenState extends State<MemberDetailScreen>
+    with WidgetsBindingObserver {
   late Future<MemberDetail> _memberDetail;
-  late CameraController _cameraController; // Gunakan nullable CameraController
   bool _cameraInitialized = false;
+  late CameraController _cameraController;
+
+  String kodeCabang = '';
+  String memberName = '';
+  String actionType = 'resetpin';
 
   final http.Client _httpClient = http.Client();
 
@@ -50,11 +60,14 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
     balance: '',
   );
 
-
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance!.addObserver(this); // Tambahkan observer
     _memberDetail = MemberController().fetchMemberDetail(widget.memberId);
+    initCamera();
+
+    _getKodeCabang();
 
     _memberDetail.then((detail) {
       setState(() {
@@ -69,13 +82,19 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
         balanceController.text = memberDetail.balance;
       });
     });
-
-    _initializeCamera();
   }
 
+  _getKodeCabang() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    kodeCabang = prefs.getString('kodecabang') ??
+        ''; // Menggunakan nilai default jika data tidak ditemukan
+    print(kodeCabang);
+    setState(
+        () {}); // Membuat widget melakukan rebuild setelah mendapatkan kodecabang
+  }
 
-
-  Future<void> _initializeCamera() async {
+  // Fungsi untuk membuka kamera
+  Future<void> initCamera() async {
     final cameras = await availableCameras();
     final firstCamera = cameras.first;
 
@@ -87,27 +106,31 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
 
     try {
       await _cameraController.initialize();
-      setState(() {
-        _cameraInitialized = true;
-      });
+      if (mounted) {
+        setState(() {
+          _cameraInitialized = true;
+        });
+      }
     } catch (e) {
-      // print('Error initializing camera: $e');
+      print('Error initializing camera: $e');
     }
   }
 
-// @override
-// void dispose() {
-//   _cameraController.dispose(); // Menghentikan dan me-"dispose" kamera
-//   super.dispose();
-// }
-  // @override
-  // void dispose() {
-  //   _httpClient.close();
-  //   if (_cameraInitialized) {
-  //     _cameraController.dispose();
-  //   }
-  //   super.dispose();
-  // }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (_cameraController != null) {
+        initCamera(); // Inisialisasi ulang kamera saat aplikasi dilanjutkan dari background
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _cameraController.dispose();
+    WidgetsBinding.instance!.removeObserver(this); // Hapus observer
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,18 +138,62 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
       leading: const Icon(Icons.arrow_back_ios),
       title: const Text("Detail"),
       actions: [
-        IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TakePictureScreen(
-                  cameraController: _cameraController!,
-                ),
+        Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => TopUpMemberScreen(
+                      memberId: widget.memberId,
+                      kodeCabang: kodeCabang,
+                      memberName: memberDetail.regName,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.touch_app),
+            ),
+            // IconButton(
+            //   onPressed: () {
+            //     Navigator.of(context).push(
+            //       MaterialPageRoute(
+            //           builder: (context) =>
+            //               PrintInvoice('Anugerah Vata abadi')),
+            //     );
+            //   },
+            //   icon: const Icon(Icons.touch_app),
+            // ),
+            Padding(
+              padding: EdgeInsets.only(right: 15.0),
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => MultiProvider(
+                        providers: [
+                          ChangeNotifierProvider<TagReadModel>(
+                            create: (context) => TagReadModel(
+                                kodeCabang: kodeCabang,
+                                memberId: widget.memberId,
+                                actionType: actionType),
+                          ),
+                          // Tambahan penyedia lainnya jika diperlukan.
+                        ],
+                        child: TagReadPage(
+                            kodeCabang: kodeCabang, // Lemparkan kodeCabang
+                            memberId: widget.memberId, // Lemparkan memberId
+                            actionType: actionType
+                            // Anda bisa mengisi uid sesuai kebutuhan Anda
+                            ),
+                      ),
+                    ),
+                  );
+                },
+                child: Icon(Icons.restore), //Reset Pin
               ),
-            );
-          },
-          icon: const Icon(Icons.camera_alt),
+            ), // Ikon yang ditambahkan di sebelah touch_app
+          ],
         ),
       ],
       headerWidget: headerWidget(context),
@@ -160,12 +227,59 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: const [
-        Icon(
-          Icons.camera_alt,
+      children: [
+        IconButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Select Source'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Tutup dialog
+                          _openCamera(context); // Buka kamera
+                        },
+                        child: Text('Take Picture'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Tutup dialog
+                          // _openGallery(context); // Buka galeri
+                        },
+                        child: Text('Get From Gallery'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+          icon: const Icon(Icons.camera_alt),
           color: Colors.white,
         ),
       ],
+    );
+  }
+
+  // Fungsi untuk membuka kamera
+  void _openCamera(BuildContext context) async {
+    final cameras = await availableCameras();
+    final firstCamera = cameras.first;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TakePictureScreen(
+          cameraController: CameraController(
+            firstCamera,
+            ResolutionPreset.medium,
+          ),
+          firstCamera: firstCamera,
+        ),
+      ),
     );
   }
 
@@ -195,16 +309,17 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
             Text(
               '${memberDetail.regName}',
               style: TextStyle(
-                  fontSize: 17.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
+                fontSize: 17.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ],
         ),
       ),
     );
   }
-} 
+}
 
 class CustomTextField extends StatelessWidget {
   final String label;
@@ -231,9 +346,9 @@ class CustomTextField extends StatelessWidget {
             controller: controller,
             decoration: InputDecoration(
               labelText: label,
-              border: myinputborder(),
-              enabledBorder: myinputborder(),
-              focusedBorder: myfocusborder(),
+              border: myInputBorder(),
+              enabledBorder: myInputBorder(),
+              focusedBorder: myFocusBorder(),
               hintText: 'Enter $label',
             ),
           ),
@@ -243,7 +358,7 @@ class CustomTextField extends StatelessWidget {
     );
   }
 
-  OutlineInputBorder myinputborder() {
+  OutlineInputBorder myInputBorder() {
     return OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(20)),
       borderSide: BorderSide(
@@ -253,7 +368,7 @@ class CustomTextField extends StatelessWidget {
     );
   }
 
-  OutlineInputBorder myfocusborder() {
+  OutlineInputBorder myFocusBorder() {
     return OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(20)),
       borderSide: BorderSide(

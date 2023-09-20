@@ -1,0 +1,558 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:app_dart/src/config/my_utils.dart';
+import 'package:app_dart/src/views/form_row.dart';
+import 'package:app_dart/src/views/ndef_record.dart';
+import 'package:app_dart/src/views/topup/nfc_session.dart';
+
+import 'package:flutter/material.dart';
+import 'package:nfc_manager/nfc_manager.dart';
+import 'package:nfc_manager/platform_tags.dart';
+import 'package:provider/provider.dart';
+
+class TagReadModel with ChangeNotifier {
+  void someFunction(Uint8List uint8List) {
+    String hexString = uint8ListToHexString(uint8List);
+    // Sekarang Anda dapat menggunakan hexString.
+    // ...
+  }
+
+  NfcTag? tag;
+
+  Map<String, dynamic>? additionalData;
+
+  Future<String?> handleTag(NfcTag tag) async {
+    this.tag = tag;
+    additionalData = {};
+
+    Object? tech;
+    String? uid;
+
+    // todo: more additional data
+    if (Platform.isAndroid) {
+      final mifare = MifareClassic.from(tag);
+      if (mifare == null) {
+        print('Tag is not compatible with MiFare.');
+      } else {
+        final uidHex = uint8ListToHexString(mifare.identifier);
+        print('UID Kartu: $uidHex');
+      }
+    }
+
+    // if (tag is NdefFormatable) {
+    //   // Untuk tag NfcA, Anda dapat mengakses UID seperti ini:
+    //   final nfcA = tag as NdefFormatable;
+    //   uid = uint8ListToHexString(nfcA.identifier);
+    // } else if (tag is MifareClassic) {
+    //   // Untuk tag Mifare Classic, Anda dapat mengakses UID seperti ini:
+    //   final mifareClassic = tag as MifareClassic;
+    //   uid = uint8ListToHexString(mifareClassic.identifier);
+    // } else if (tag is MifareUltralight) {
+    //   // Untuk tag Mifare Ultralight, Anda dapat mengakses UID seperti ini:
+    //   final mifareUltralight = tag as MifareUltralight;
+    //   uid = uint8ListToHexString(mifareUltralight.identifier);
+    // } else {
+    //   // Tambahkan penanganan jenis tag lainnya jika diperlukan.
+    // }
+
+    // Cetak informasi umum tentang tag
+    // if (tag != null) {
+    //   // print('Tag Identifier: ${tag.identifier}');
+    //   print('Tag Tech List: ${_getTechListString(tag)}');
+    // }
+
+    // if (tag != null) {
+    //   print('UID Kartu: $uid');
+    //   print('Tag Tech List: ${_getTechListString(tag)}');
+    // }
+
+    notifyListeners();
+    return '[Tag - Read] is completed.';
+  }
+}
+
+class TagReadPage extends StatelessWidget {
+  static Widget withDependency() => ChangeNotifierProvider<TagReadModel>(
+        create: (context) => TagReadModel(),
+        child: TagReadPage(),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    double heightR, widthR;
+    heightR = MediaQuery.of(context).size.height / 1080; //v26
+    widthR = MediaQuery.of(context).size.width / 2400;
+    var curR = widthR;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Read NFC and e-tag'),
+        actions: <Widget>[
+          // IconButton(
+          //   icon: Icon(
+          //     Icons.contactless,
+          //     color: Colors.white,
+          //   ),
+          //   onPressed: () => startSession(
+          //     context: context,
+          //     handleTag:
+          //         Provider.of<TagReadModel>(context, listen: false).handleTag,
+
+          //   ),
+
+          // )
+        ],
+      ),
+      body: ListView(
+        padding: EdgeInsets.all(4 * heightR),
+        children: [
+          FormSection(
+            children: [
+              FormRow(
+                title: Text('Start scanning',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary)),
+                onTap: () => startSession(
+                  context: context,
+                  handleTag: Provider.of<TagReadModel>(context, listen: false)
+                      .handleTag,
+                ),
+              ),
+            ],
+          ),
+          // consider: Selector<Tuple<{TAG}, {ADDITIONAL_DATA}>>
+          // Consumer<TagReadModel>(builder: (context, model, _) {
+          //   final tag = model.tag;
+          //   final additionalData = model.additionalData;
+          //   if (tag != null && additionalData != null)
+          //     return _TagInfo(tag, additionalData);
+          //   return SizedBox.shrink();
+          // }),
+        ],
+      ),
+    );
+  }
+}
+
+class _TagInfo extends StatelessWidget {
+  _TagInfo(this.tag, this.additionalData);
+
+  final NfcTag tag;
+
+  final Map<String, dynamic> additionalData;
+
+  @override
+  Widget build(BuildContext context) {
+    final tagWidgets = <Widget>[];
+    final ndefWidgets = <Widget>[];
+
+    Object? tech;
+
+    tech = Ndef.from(tag);
+
+    if (tech is Ndef) {
+      final cachedMessage = tech.cachedMessage;
+      if (cachedMessage != null) {
+        // Cetak data dari pesan NDEF
+        print('NDEF Message Length: ${cachedMessage.byteLength} bytes');
+
+        // Iterasi dan cetak setiap catatan dalam pesan
+        for (int i = 0; i < cachedMessage.records.length; i++) {
+          final record = cachedMessage.records[i];
+          print('Record #$i:');
+          print('Type: ${record.type}');
+          print('Payload: ${record.payload}');
+          // Tambahkan logika lain jika diperlukan sesuai dengan tipe catatan yang Anda dapatkan.
+        }
+      }
+    }
+
+    return Column(
+      children: [
+        FormSection(
+          header: Text('TAG'),
+          children: tagWidgets,
+        ),
+        if (ndefWidgets.isNotEmpty)
+          FormSection(
+            header: Text('NDEF'),
+            children: ndefWidgets,
+          ),
+      ],
+    );
+
+    // if (Platform.isAndroid) {
+    //   //Danh cho Android
+    //   tagWidgets.add(FormRow(
+    //     title: Text('Identifier'),
+    //     subtitle: Text(''),
+    //   ));
+    //   tagWidgets.add(FormRow(
+    //     title: Text('Tech List'), //Danh sach cac loai the chi danh cho android
+    //     subtitle: Text(_getTechListString(tag)),
+    //   ));
+
+    //   tech = NfcA.from(tag); //Danh cho loai the NfcA
+    //   if (tech is NfcA) {
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcA - Atqa'),
+    //       subtitle: Text('${uint8ListToHexString(tech.atqa)}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcA - Sak'),
+    //       subtitle: Text('${tech.sak}'),
+    //     ));
+    //     // tagWidgets.add(FormRow(
+    //     //   title: Text(
+    //     //       'NfcA - Max Transceive Length'), //Do dai toi da cua du lieu nhap vao
+    //     //   subtitle: Text('${uint8ListToHexString(tech.maxTransceiveLength)}'),
+    //     // ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcA - Timeout'),
+    //       subtitle: Text('${tech.timeout}'),
+    //     ));
+
+    //     tech = MifareClassic.from(tag); //Danh cho the Mifare co ban
+    //     if (tech is MifareClassic) {
+    //       tagWidgets.add(FormRow(
+    //         title: Text('MifareClassic - Type'), //Kieu du lieu
+    //         subtitle: Text(_getMiFareClassicTypeString(tech.type)),
+    //       ));
+    //       tagWidgets.add(FormRow(
+    //         title: Text('MifareClassic - Size'), // kich thuoc du lieu
+    //         subtitle: Text('${tech.size}'),
+    //       ));
+    //       tagWidgets.add(FormRow(
+    //         title: Text('MifareClassic - Sector Count'), //So luong du lieu
+    //         subtitle: Text('${tech.sectorCount}'),
+    //       ));
+    //       tagWidgets.add(FormRow(
+    //         title: Text('MifareClassic - Block Count'), //Khoi du lieu
+    //         subtitle: Text('${tech.blockCount}'),
+    //       ));
+    //       tagWidgets.add(FormRow(
+    //         title: Text(
+    //             'MifareClassic - Max Transceive Length'), //Do dai toi da cua du lieu
+    //         subtitle: Text('${tech.maxTransceiveLength}'),
+    //       ));
+    //       tagWidgets.add(FormRow(
+    //         title: Text(
+    //             'MifareClassic - Timeout'), //Thoi gian thoat neu khong thao tac
+    //         subtitle: Text('${tech.timeout}'),
+    //       ));
+    //     }
+
+    //     tech = MifareUltralight.from(tag); //danh cho the mifare ultralight
+    //     if (tech is MifareUltralight) {
+    //       tagWidgets.add(FormRow(
+    //         title: Text('MifareUltralight - Type'),
+    //         subtitle: Text(_getMiFareUltralightTypeString(tech.type)),
+    //       ));
+    //       tagWidgets.add(FormRow(
+    //         title: Text('MifareUltralight - Max Transceive Length'),
+    //         subtitle: Text('${tech.maxTransceiveLength}'),
+    //       ));
+    //       tagWidgets.add(FormRow(
+    //         title: Text('MifareUltralight - Timeout'),
+    //         subtitle: Text('${tech.timeout}'),
+    //       ));
+    //     }
+    //   }
+
+    //   tech = NfcB.from(tag); //The nfcB, cung cap truy cap toi tieu chuan NFC-B
+    //   if (tech is NfcB) {
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcB - Application Data'), //Du lieu trong the
+    //       subtitle: Text('${uint8ListToHexString(tech.applicationData)}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title:
+    //           Text('NfcB - Protocol Info'), //Thong tin giao thuc truyen du lieu
+    //       subtitle: Text('${uint8ListToHexString(tech.protocolInfo)}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcB - Max Transceive Length'),
+    //       subtitle: Text('${tech.maxTransceiveLength}'),
+    //     ));
+    //   }
+
+    //   tech = NfcF.from(tag); //danh cho the NfcF
+    //   if (tech is NfcF) {
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcF - System Code'), //Ma he thong de truy cap vao the
+    //       subtitle: Text('${uint8ListToHexString(tech.systemCode)}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcF - Manufacturer'), //danh cho nha che tao the
+    //       subtitle: Text('${uint8ListToHexString(tech.manufacturer)}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcF - Max Transceive Length'),
+    //       subtitle: Text('${tech.maxTransceiveLength}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcF - Timeout'),
+    //       subtitle: Text('${tech.timeout}'),
+    //     ));
+    //   }
+
+    //   tech = NfcV.from(tag); //Danh cho the NfcV
+    //   if (tech is NfcV) {
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcV - DsfId'), //Ghi du lieu vao the
+    //       subtitle: Text('${tech.dsfId}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcV - Response Flags'), //Co phan hoi tu nguoi dung
+    //       subtitle: Text('${tech.responseFlags}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('NfcV - Max Transceive Length'),
+    //       subtitle: Text('${tech.maxTransceiveLength}'),
+    //     ));
+    //   }
+
+    //   tech = IsoDep.from(tag); //the IosDep danh cho android
+    //   if (tech is IsoDep) {
+    //     // tagWidgets.add(FormRow(
+    //     //   title: Text('IsoDep - Hi Layer Response'),
+    //     //   subtitle: Text('${tech.hiLayerResponse?uint8ListToHexString(tech.hiLayerResponse) ?? '-'}'),
+    //     // ));
+    //     // tagWidgets.add(FormRow(
+    //     //   title: Text(
+    //     //       'IsoDep - Historical Bytes'), //Lich su luw tru cac byte du lieu
+    //     //   subtitle: Text('${tech.historicalBytes?uint8ListToHexString(tech.historicalBytes) ?? '-'}'),
+    //     // ));
+    //     // tagWidgets.add(FormRow(
+    //     //   title: Text(
+    //     //       'IsoDep - Extended Length Apdu Supported'), //Du lieu tuan theo dinh sanh Apdu
+    //     //   subtitle: Text('${tech.isExtendedLengthApduSupported}'),
+    //     // ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('IsoDep - Max Transceive Length'),
+    //       subtitle: Text('${tech.maxTransceiveLength}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('IsoDep - Timeout'),
+    //       subtitle: Text('${tech.timeout}'),
+    //     ));
+    //   }
+    // }
+
+    // if (Platform.isIOS) {
+    //   //Danh cho nen tang ios
+    //   tech = FeliCa.from(tag); //danh cho loai the Felica
+    //   if (tech is FeliCa) {
+    //     final manufacturerParameter =
+    //         additionalData['manufacturerParameter'] as Uint8List?;
+    //     tagWidgets.add(FormRow(
+    //       title: Text('Type'),
+    //       subtitle: Text('FeliCa'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('Current IDm'), //Truyen tai du lieu vao the
+    //       subtitle: Text('${uint8ListToHexString(tech.currentIDm)}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('Current System Code'), //ma he thong truy cap vao the
+    //       subtitle: Text('${uint8ListToHexString(tech.currentSystemCode)}'),
+    //     ));
+    //     if (manufacturerParameter != null)
+    //       tagWidgets.add(FormRow(
+    //         title: Text('Manufacturer Parameter'), //Thong so nha san xuat
+    //         subtitle: Text('${manufacturerParameter}'),
+    //       ));
+    //   }
+
+    //   tech = Iso15693.from(tag);
+    //   if (tech is Iso15693) {
+    //     tagWidgets.add(FormRow(
+    //       title: Text('Type'), //ten the
+    //       subtitle: Text('ISO15693'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('Identifier'), //thong tin ve the
+    //       subtitle: Text('${uint8ListToHexString(tech.identifier)}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('IC Serial Number'), //So seri cua the
+    //       subtitle: Text('${uint8ListToHexString(tech.icSerialNumber)}'),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title:
+    //           Text('IC Manufacturer Code'), //Max so cua nha san xuat in len the
+    //       subtitle: Text('${tech.icManufacturerCode}'),
+    //     ));
+    //   }
+
+    //   tech = Iso7816.from(tag);
+    //   if (tech is Iso7816) {
+    //     tagWidgets.add(FormRow(
+    //       title: Text('Type'),
+    //       subtitle: Text('ISO7816'),
+    //     ));
+    //     // tagWidgets.add(FormRow(
+    //     //   title: Text('Identifier'),
+    //     //   subtitle: Text('${tech.identifier.toHexString()}'),
+    //     // ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('Initial Selected AID'),
+    //       subtitle: Text('${tech.initialSelectedAID}'),
+    //     ));
+    //     // tagWidgets.add(FormRow(
+    //     //   title: Text('Application Data'),
+    //     //   subtitle: Text('${tech.applicationData?.toHexString() ?? '-'}'),
+    //     // ));
+    //     // tagWidgets.add(FormRow(
+    //     //   title: Text('Historical Bytes'),
+    //     //   subtitle: Text('${tech.historicalBytes?.toHexString() ?? '-'}'),
+    //     // ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text(
+    //           'Proprietary Application Data Coding'), //Ma hoa du lieu trong the
+    //       subtitle: Text('${tech.proprietaryApplicationDataCoding}'),
+    //     ));
+    //   }
+
+    //   tech = MiFare.from(tag); //The Mifare danh cho Ios
+    //   if (tech is MiFare) {
+    //     tagWidgets.add(FormRow(
+    //       title: Text('Type'),
+    //       subtitle: Text('MiFare ' + _getMiFareFamilyString(tech.mifareFamily)),
+    //     ));
+    //     tagWidgets.add(FormRow(
+    //       title: Text('Identifier'),
+    //       subtitle: Text('${uint8ListToHexString(tech.identifier)}'),
+    //     ));
+    //     // tagWidgets.add(FormRow(
+    //     //   title: Text('Historical Bytes'),
+    //     //   subtitle: Text('${tech.historicalBytes?.toHexString() ?? '-'}'),
+    //     // ));
+    //   }
+    // }
+
+    // tech = Ndef.from(
+    //     tag); //The Ndef, ndef la mot loaij giao thuc  cho phep nhan va gui du lieu giua 2 thiet bi cos ho tro nfc
+    // if (tech is Ndef) {
+    //   final cachedMessage = tech.cachedMessage;
+    //   final canMakeReadOnly = tech.additionalData['canMakeReadOnly'] as bool?;
+    //   final type = tech.additionalData['type'] as String?;
+    //   if (type != null)
+    //     ndefWidgets.add(FormRow(
+    //       title: Text('Type'), //Neu the co du lieu thi hien du lieu ra
+    //       subtitle: Text(_getNdefType(type)),
+    //     ));
+    //   ndefWidgets.add(FormRow(
+    //     title: Text('Size'),
+    //     subtitle:
+    //         Text('${cachedMessage?.byteLength ?? 0} / ${tech.maxSize} bytes'),
+    //   ));
+    //   ndefWidgets.add(FormRow(
+    //     title: Text('Writable'), //Ghi du lieu
+    //     subtitle: Text('${tech.isWritable}'),
+    //   ));
+    //   if (canMakeReadOnly != null)
+    //     ndefWidgets.add(FormRow(
+    //       title: Text('Can Make Read Only'),
+    //       subtitle: Text('$canMakeReadOnly'),
+    //     ));
+    //   if (cachedMessage != null)
+    //     Iterable.generate(cachedMessage.records.length).forEach((i) {
+    //       final record = cachedMessage.records[i];
+    //       final info = NdefRecordInfo.fromNdef(record);
+    //       ndefWidgets.add(FormRow(
+    //         title: Text('#$i ${info.title}'),
+    //         subtitle: Text('${info.subtitle}'),
+    //         trailing: Icon(Icons.chevron_right),
+    //         onTap: () => Navigator.push(
+    //             context,
+    //             MaterialPageRoute(
+    //               builder: (context) => NdefRecordPage(i, record),
+    //             )),
+    //       ));
+    //     });
+    // }
+
+    // return Column(
+    //   children: [
+    //     FormSection(
+    //       header: Text('TAG'),
+    //       children: tagWidgets,
+    //     ),
+    //     if (ndefWidgets.isNotEmpty)
+    //       FormSection(
+    //         header: Text('NDEF'),
+    //         children: ndefWidgets,
+    //       ),
+    //   ],
+    // );
+  }
+}
+
+String _getTechListString(NfcTag tag) {
+  final techList = <String>[];
+  if (tag.data.containsKey('nfca')) techList.add('NfcA');
+  if (tag.data.containsKey('nfcb')) techList.add('NfcB');
+  if (tag.data.containsKey('nfcf')) techList.add('NfcF');
+  if (tag.data.containsKey('nfcv')) techList.add('NfcV');
+  if (tag.data.containsKey('isodep')) techList.add('IsoDep');
+  if (tag.data.containsKey('mifareclassic')) techList.add('MifareClassic');
+  if (tag.data.containsKey('mifareultralight'))
+    techList.add('MifareUltralight');
+  if (tag.data.containsKey('ndef')) techList.add('Ndef');
+  if (tag.data.containsKey('ndefformatable')) techList.add('NdefFormatable');
+  return techList.join(' / ');
+}
+
+String _getMiFareClassicTypeString(int code) {
+  switch (code) {
+    case 0:
+      return 'Classic';
+    case 1:
+      return 'Plus';
+    case 2:
+      return 'Pro';
+    default:
+      return 'Unknown';
+  }
+}
+
+String _getMiFareUltralightTypeString(int code) {
+  switch (code) {
+    case 1:
+      return 'Ultralight';
+    case 2:
+      return 'Ultralight C';
+    default:
+      return 'Unknown';
+  }
+}
+
+String _getMiFareFamilyString(MiFareFamily family) {
+  switch (family) {
+    case MiFareFamily.unknown:
+      return 'Unknown';
+    case MiFareFamily.ultralight:
+      return 'Ultralight';
+    case MiFareFamily.plus:
+      return 'Plus';
+    case MiFareFamily.desfire:
+      return 'Desfire';
+    default:
+      return 'Unknown';
+  }
+}
+
+String _getNdefType(String code) {
+  switch (code) {
+    case 'org.nfcforum.ndef.type1':
+      return 'NFC Forum Tag Type 1';
+    case 'org.nfcforum.ndef.type2':
+      return 'NFC Forum Tag Type 2';
+    case 'org.nfcforum.ndef.type3':
+      return 'NFC Forum Tag Type 3';
+    case 'org.nfcforum.ndef.type4':
+      return 'NFC Forum Tag Type 4';
+    default:
+      return 'Unknown';
+  }
+}
