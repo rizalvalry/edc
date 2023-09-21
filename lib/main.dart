@@ -12,7 +12,7 @@ import 'package:flutter/services.dart';
 import 'src/views/member_list_screen.dart';
 // import 'src/views/member_search_delegate.dart';
 import 'package:http/http.dart' as http;
-// import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {

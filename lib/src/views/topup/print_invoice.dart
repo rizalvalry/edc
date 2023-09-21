@@ -1,153 +1,334 @@
-// ignore_for_file: public_member_api_docs
-
-import 'dart:typed_data';
-
-// import 'package:app_dart/src/views/topup/print_invoice.dart';
+import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/config/flare_animation_widget.dart';
+import 'package:app_dart/src/views/topup/tag_read.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import library untuk format rupiah
+import 'package:pdf/widgets.dart' as pdfLib;
 import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-Future<void> main() async {
-  runApp(const PrintInvoice('Anugerah Vata Abadi'));
-}
-
 class PrintInvoice extends StatelessWidget {
-  const PrintInvoice(this.title, {Key? key}) : super(key: key);
-
   final String title;
+  final String date;
+  final String txCode;
+  final String cardNumber;
+  final String memberName;
+  final String amount;
+  final String closebalance;
+  final String balance;
+  final String idmember;
+
+  PrintInvoice(
+      {required this.title,
+      required this.date,
+      required this.txCode,
+      required this.cardNumber,
+      required this.memberName,
+      required this.amount,
+      required this.closebalance,
+      required this.balance,
+      required this.idmember});
+
+  String formatCurrency(double value) {
+    // Ubah nilai double menjadi format mata uang
+    final currencyFormat =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ');
+    return currencyFormat.format(value);
+  }
+
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> _printInvoice(BuildContext context) async {
+    final pdf = pdfLib.Document();
+
+    // Tambahkan desain isi teks ke dalam PDF
+    pdf.addPage(
+      pdfLib.MultiPage(
+        build: (context) => [
+          pdfLib.Container(
+            alignment: pdfLib.Alignment.topLeft,
+            child: pdfLib.Text(
+              'Anugerah Vata Abadi',
+              style: pdfLib.TextStyle(
+                  fontSize: 20, fontWeight: pdfLib.FontWeight.bold),
+            ),
+          ),
+          pdfLib.Divider(),
+          pdfLib.Container(
+            child: pdfLib.Row(
+              mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+              children: [
+                pdfLib.Text('Invoice Date:',
+                    style: pdfLib.TextStyle(
+                        fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
+                pdfLib.Text(date, style: pdfLib.TextStyle(fontSize: 22)),
+              ],
+            ),
+          ),
+          pdfLib.Container(
+            child: pdfLib.Row(
+              mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+              children: [
+                pdfLib.Text('TX Code:',
+                    style: pdfLib.TextStyle(
+                        fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
+                pdfLib.Text(txCode, style: pdfLib.TextStyle(fontSize: 22)),
+              ],
+            ),
+          ),
+          pdfLib.Container(
+            child: pdfLib.Row(
+              mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+              children: [
+                pdfLib.Text('Nomor Kartu:',
+                    style: pdfLib.TextStyle(
+                        fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
+                pdfLib.Text(cardNumber, style: pdfLib.TextStyle(fontSize: 22)),
+              ],
+            ),
+          ),
+          pdfLib.Divider(),
+          pdfLib.Container(
+            child: pdfLib.Row(
+              mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+              children: [
+                pdfLib.Text('ID Member:',
+                    style: pdfLib.TextStyle(
+                        fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
+                pdfLib.Text(idmember, style: pdfLib.TextStyle(fontSize: 22)),
+              ],
+            ),
+          ),
+          pdfLib.Container(
+            child: pdfLib.Row(
+              mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+              children: [
+                pdfLib.Text('Nama Member:',
+                    style: pdfLib.TextStyle(
+                        fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
+                pdfLib.Text(memberName, style: pdfLib.TextStyle(fontSize: 22)),
+              ],
+            ),
+          ),
+          pdfLib.Container(
+            child: pdfLib.Row(
+              mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+              children: [
+                pdfLib.Text('Jumlah:',
+                    style: pdfLib.TextStyle(
+                        fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
+                pdfLib.Text('${formatCurrency(double.parse(amount))}',
+                    style: pdfLib.TextStyle(fontSize: 22)),
+              ],
+            ),
+          ),
+          pdfLib.Container(
+            child: pdfLib.Row(
+              mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+              children: [
+                pdfLib.Text('Saldo Awal:',
+                    style: pdfLib.TextStyle(
+                        fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
+                pdfLib.Text(
+                  '${formatCurrency(double.parse(balance))}',
+                  style: pdfLib.TextStyle(fontSize: 22),
+                ),
+              ],
+            ),
+          ),
+          pdfLib.Container(
+            child: pdfLib.Row(
+              mainAxisAlignment: pdfLib.MainAxisAlignment.spaceBetween,
+              children: [
+                pdfLib.Text('Saldo Akhir:',
+                    style: pdfLib.TextStyle(
+                        fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
+                pdfLib.Text(
+                  '${formatCurrency(double.parse(closebalance))}',
+                  style: pdfLib.TextStyle(fontSize: 22),
+                ),
+              ],
+            ),
+          ),
+          pdfLib.Divider(),
+        ],
+      ),
+    );
+
+    // Cetak PDF
+    await Printing.layoutPdf(onLayout: (PdfPageFormat format) async {
+      return pdf.save();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: Text("Print Preview")),
-        body: PdfPreview(
-          build: (format) => _generatePdf(format, title),
+    // Panggil metode cetak saat halaman dimuat
+    _printInvoice(context);
+
+    return Scaffold(
+        key: scaffoldKey,
+        appBar: AppBar(
+          backgroundColor: AppColor.baseColor,
+          title: Text(title),
         ),
-      ),
-      debugShowCheckedModeBanner: false,
-    );
-  }
+        body: Card(
+          elevation: 4, // Nilai elevation yang Anda inginkan
 
-  Future<Uint8List> _generatePdf(PdfPageFormat format, String title) async {
-    final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
-    final font = await PdfGoogleFonts.nunitoExtraLight();
-
-    pdf.addPage(
-      pw.Page(
-        pageFormat: format,
-        build: (context) {
-          return pw.Container(
-            padding: pw.EdgeInsets.all(15.0),
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.SizedBox(height: 25),
-                pw.Text(
-                  'Anugerah Vata Abadi',
-                  style: pw.TextStyle(
-                      fontSize: 20, fontWeight: pw.FontWeight.bold),
-                ),
-                pw.SizedBox(height: 25),
-                pw.Container(
-                  width: double.infinity,
-                  decoration: pw.BoxDecoration(
-                    border: pw.Border(
-                      bottom: pw.BorderSide(
-                        width: 1,
+          child: Padding(
+            padding: EdgeInsets.all(15),
+            child: Column(
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Invoice Date:',
+                        style: TextStyle(fontSize: 15),
                       ),
-                    ),
+                      Text(
+                        '$date',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ],
                   ),
                 ),
-                pw.SizedBox(height: 25),
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                SizedBox(height: 16), // Spasi antara teks dan tombol
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // ...
-                    pw.Row(
-                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                      children: [
-                        pw.Text(
-                          'DATE/TIME:',
-                          style: pw.TextStyle(fontSize: 25),
-                        ),
-                        pw.Text(
-                          '17-Sep-2023', textAlign: pw.TextAlign.right,
-                          style: pw.TextStyle(
-                            fontSize: 25,
-                          ), // Atur align right
-                        ),
-                      ],
+                    Text(
+                      'Transaction Code:',
+                      style: TextStyle(fontSize: 15),
                     ),
-                    pw.Row(
-                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                      children: [
-                        pw.Text(
-                          'TX CODE:',
-                          style: pw.TextStyle(fontSize: 25),
-                        ),
-                        pw.Text(
-                          '114', textAlign: pw.TextAlign.right,
-                          style: pw.TextStyle(
-                            fontSize: 25,
-                          ), // Atur align right
-                        ),
-                      ],
+                    Text(
+                      '$txCode',
+                      style: TextStyle(fontSize: 15),
                     ),
                   ],
                 ),
-                pw.SizedBox(height: 25),
-                pw.Container(
-                  width: double.infinity,
-                  decoration: pw.BoxDecoration(
-                    border: pw.Border(
-                      bottom: pw.BorderSide(
-                        width: 0, // Atur lebar border menjadi 0
+                SizedBox(height: 16), // Spasi antara teks dan tombol
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Card Number:',
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    Text(
+                      '$cardNumber',
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16), // Spasi antara teks dan tombol
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Member Name:',
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    Text(
+                      '$memberName',
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16), // Spasi antara teks dan tombol
+
+                SizedBox(height: 16), // Spasi antara teks dan tombol
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Jumlah TOPUP :',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ),
-                pw.SizedBox(height: 25),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text(
-                      'Nomor Kartu:',
-                      style: pw.TextStyle(fontSize: 25),
-                    ),
-                    pw.Text(
-                      '3423-3432-5666-0999',
-                      textAlign: pw.TextAlign.right,
-                      style: pw.TextStyle(
-                        fontSize: 25,
+                    Text(
+                      '${formatCurrency(double.parse(amount))}',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                SizedBox(height: 16), // Spasi antara teks dan tombol
+
+                SizedBox(height: 16), // Spasi antara teks dan tombol
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text(
-                      'Nama Member:',
-                      style: pw.TextStyle(fontSize: 25),
-                    ),
-                    pw.Text(
-                      'Alif Rahmat',
-                      textAlign: pw.TextAlign.right,
-                      style: pw.TextStyle(
-                        fontSize: 25,
+                    Text(
+                      'Total SALDO :',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
                       ),
+                    ),
+                    Text(
+                      '${formatCurrency(double.parse(closebalance))}',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16), // Spasi antara teks dan tombol
+
+                SizedBox(height: 24), // Spasi di bawah tombol
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) {
+                              return FlareAnimationWidget(
+                                scaffoldKey: scaffoldKey,
+                                alertMessage: 'Success',
+                                actionType: 'resetpin',
+                                previousContext:
+                                    context, // Pass previous context here
+                              ); // Gantilah dengan halaman sebelumnya yang ingin Anda refresh
+                            },
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                          Icons.arrow_back), // Ikon cetak (misalnya, printer)
+                      label: Text('Kembali',
+                          style: TextStyle(color: AppColor.darkOrange)),
+                      style:
+                          ElevatedButton.styleFrom(primary: AppColor.baseColor),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Tambahkan logika untuk mencetak ulang invoice di sini
+                        _printInvoice(context);
+                      },
+                      icon: Icon(Icons.print), // Ikon cetak (misalnya, printer)
+                      label: Text('Re-Print'),
+                      style:
+                          ElevatedButton.styleFrom(primary: AppColor.baseColor),
                     ),
                   ],
                 ),
               ],
             ),
-          );
-        },
-      ),
-    );
-
-    return pdf.save();
+          ),
+        ));
   }
 }

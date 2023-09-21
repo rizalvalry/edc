@@ -44,17 +44,23 @@ class MemberListScreen extends StatelessWidget {
           systemNavigationBarColor: AppColor.baseColor,
           statusBarColor: AppColor.baseColor,
         ),
-        title: Text('Daftar Anggota'),
+        title: Text(
+          'Daftar Member',
+          style: TextStyle(color: AppColor.darkOrange),
+        ),
         backgroundColor: AppColor.baseColor,
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
+            icon: Icon(
+              Icons.search,
+              color: AppColor.darkOrange,
+            ),
             onPressed: () {
               showMemberSearch(context);
             },
           ),
           IconButton(
-            icon: Icon(Icons.sort),
+            icon: Icon(Icons.sort, color: AppColor.darkOrange),
             onPressed: () {
               toggleSort(context);
             },

@@ -135,8 +135,14 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
   @override
   Widget build(BuildContext context) {
     return DraggableHome(
-      leading: const Icon(Icons.arrow_back_ios),
-      title: const Text("Detail"),
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+      title: const Text("Detail Member",
+          style: TextStyle(color: AppColor.darkOrange)),
       actions: [
         Row(
           children: [
@@ -152,7 +158,10 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
                   ),
                 );
               },
-              icon: const Icon(Icons.touch_app),
+              icon: const Icon(
+                Icons.touch_app,
+                color: AppColor.darkOrange,
+              ),
             ),
             // IconButton(
             //   onPressed: () {
@@ -190,7 +199,10 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
                     ),
                   );
                 },
-                child: Icon(Icons.restore), //Reset Pin
+                child: Icon(
+                  Icons.restore,
+                  color: AppColor.darkOrange,
+                ), //Reset Pin
               ),
             ), // Ikon yang ditambahkan di sebelah touch_app
           ],
@@ -259,7 +271,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
             );
           },
           icon: const Icon(Icons.camera_alt),
-          color: Colors.white,
+          color: AppColor.darkOrange,
         ),
       ],
     );
@@ -311,7 +323,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
               style: TextStyle(
                 fontSize: 17.0,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppColor.darkOrange,
               ),
             ),
           ],
@@ -362,7 +374,7 @@ class CustomTextField extends StatelessWidget {
     return OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(20)),
       borderSide: BorderSide(
-        color: Colors.blue,
+        color: AppColor.baseColor,
         width: 2,
       ),
     );
@@ -372,7 +384,7 @@ class CustomTextField extends StatelessWidget {
     return OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(20)),
       borderSide: BorderSide(
-        color: Colors.lightBlueAccent,
+        color: AppColor.darkOrange,
         width: 2,
       ),
     );

@@ -19,8 +19,7 @@ Future<void> startSession({
   if (Platform.isAndroid)
     return showDialog(
       context: context,
-      builder: (context) =>
-          _AndroidSessionDialog("halo $alertMessage", handleTag),
+      builder: (context) => _AndroidSessionDialog("$alertMessage", handleTag),
     );
 
   if (Platform.isIOS)
@@ -106,13 +105,14 @@ class _AndroidSessionDialogState extends State<_AndroidSessionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    if (_showFlareAnimation) {
-      return FlareAnimationWidget(
-        scaffoldKey:
-            scaffoldKey, // scaffoldKey dari widget yang menampung Scaffold
-        alertMessage: _alertMessage, // Pesan alert
-      );
-    }
+    // if (_showFlareAnimation) {
+    //   return FlareAnimationWidget(
+    //     scaffoldKey:
+    //         scaffoldKey, // scaffoldKey dari widget yang menampung Scaffold
+    //     alertMessage: _alertMessage, // Pesan alert
+    //     previousContext: context,
+    //   );
+    // }
     return AlertDialog(
       title: Text(
         _errorMessage?.isNotEmpty == true
@@ -142,7 +142,7 @@ class _AndroidSessionDialogState extends State<_AndroidSessionDialog> {
                     ? 'OK'
                     : 'CANCEL',
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => {Navigator.of(context).pop()},
         ),
       ],
     );

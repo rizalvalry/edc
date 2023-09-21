@@ -1,5 +1,6 @@
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/models/member_detail.dart';
+import 'package:app_dart/src/views/topup/nfc_session.dart';
 import 'package:app_dart/src/views/topup/tag_read.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,7 @@ class _TopUpMemberScreenState extends State<TopUpMemberScreen> {
 
   String kodeCabang = '';
   String actionType = 'topup';
+  String amount = '';
   // String memberName = '';
 
   @override
@@ -57,7 +59,11 @@ class _TopUpMemberScreenState extends State<TopUpMemberScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: const Icon(Icons.arrow_back_ios),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
+            onPressed: () {
+              Navigator.of(context).pop();
+            }),
         backgroundColor: AppColor.baseColor,
         title: Text('Top-Up Member - Cabang ${widget.kodeCabang}'),
       ),
@@ -100,25 +106,21 @@ class _TopUpMemberScreenState extends State<TopUpMemberScreen> {
                 SizedBox(height: 22.0),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => MultiProvider(
-                          providers: [
-                            ChangeNotifierProvider<TagReadModel>(
-                              create: (context) => TagReadModel(
-                                  kodeCabang: kodeCabang,
-                                  memberId: widget.memberId,
-                                  actionType: actionType),
-                            ),
-                            // Tambahan penyedia lainnya jika diperlukan.
-                          ],
-                          //              child: TagReadPage(
-                          //   kodeCabang: kodeCabang, // Lemparkan kodeCabang
-                          //   memberId: memberId,     // Lemparkan memberId
-                          //   uid: '',                 // Anda bisa mengisi uid sesuai kebutuhan Anda
-                          // ),
-                        ),
-                      ),
+                    setState(() {
+                      amount = _nominalController.text;
+                    });
+
+                    startSession(
+                      context: context,
+                      handleTag: (tag) async {
+                        final tagReadModel = TagReadModel(
+                          kodeCabang: widget.kodeCabang,
+                          memberId: widget.memberId,
+                          actionType: actionType,
+                          amount: amount,
+                        );
+                        return await tagReadModel.handleTag(tag, context);
+                      },
                     );
                   },
                   child: Text('Top-Up Sekarang'),

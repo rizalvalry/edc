@@ -53,4 +53,9 @@ class BaseUrl {
     final serverIpAddress = BaseUrl.serverIpAddress;
     return 'http://$serverIpAddress/members/reset_pin';
   }
+
+  String topUpMember() {
+    final serverIpAddress = BaseUrl.serverIpAddress;
+    return 'http://$serverIpAddress/edc/POSTtopup';
+  }
 }
