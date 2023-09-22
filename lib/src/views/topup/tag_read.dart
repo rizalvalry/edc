@@ -207,44 +207,72 @@ class TagReadPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double heightR, widthR;
-    heightR = MediaQuery.of(context).size.height / 1080; //v26
-    widthR = MediaQuery.of(context).size.width / 2400;
+    heightR = MediaQuery.of(context).size.height / 0.0; // Tinggi layar dibagi 2
+    widthR = MediaQuery.of(context).size.width / 0.0; // Lebar layar dibagi 2
+
     var curR = widthR;
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
-            onPressed: () {
-              Navigator.of(context).pop();
-            }),
-        backgroundColor: AppColor.baseColor,
-        title: Text(
-          'NFC Read - $actionType [$kodeCabang]',
-          style: TextStyle(color: AppColor.darkOrange),
+        appBar: AppBar(
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
+              onPressed: () {
+                Navigator.of(context).pop();
+              }),
+          backgroundColor: AppColor.baseColor,
+          title: Text(
+            'NFC Read - $actionType [$kodeCabang]',
+            style: TextStyle(color: AppColor.darkOrange),
+          ),
+          actions: <Widget>[],
         ),
-        actions: <Widget>[],
-      ),
-      body: ListView(
-        padding: EdgeInsets.all(4 * heightR),
-        children: [
-          FormSection(
-            children: [
-              FormRow(
-                title: Text('Mulai Scanning untuk ($memberId)',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary)),
-                onTap: () => startSession(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment
+                .center, // Mengatur penempatan horizontal ke tengah
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () => startSession(
                   context: context,
                   handleTag: (tag) =>
                       Provider.of<TagReadModel>(context, listen: false)
                           .handleTag(tag,
                               context), // Memasukkan context ke dalam handleTag
                 ),
+                style: ElevatedButton.styleFrom(
+                  primary: AppColor.baseColor, // Warna latar belakang tombol
+                  onPrimary: Colors.white, // Warna teks pada tombol
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0), // Bentuk tombol
+                  ),
+                  padding: EdgeInsets.all(16.0), // Padding tombol
+                ),
+                child: Text(
+                  "RESET PIN MEMBER",
+                  style: TextStyle(
+                      fontSize: 18.0,
+                      color: AppColor.darkOrange), // Gaya teks pada tombol
+                ),
               ),
             ],
           ),
-        ],
-      ),
-    );
+
+          // FormSection(
+          //   children: [
+          //     FormRow(
+          //       title: Text('Mulai Scanning untuk ($memberId)',
+          //           style: TextStyle(
+          //               color: Theme.of(context).colorScheme.primary)),
+          // onTap: () => startSession(
+          //   context: context,
+          //   handleTag: (tag) =>
+          //       Provider.of<TagReadModel>(context, listen: false)
+          //           .handleTag(tag,
+          //               context), // Memasukkan context ke dalam handleTag
+          // ),
+          //     ),
+          //   ],
+          // ),
+        ));
   }
 }
