@@ -106,7 +106,7 @@ class _PermissionState extends State<Permission> {
 
               // Simpan data ke SharedPreferences
               final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('userid', userid);
+              await prefs.setString('userid', userid.toString());
               await prefs.setString('loginname', loginname);
               await prefs.setString('branchid', branchid);
 

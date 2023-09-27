@@ -11,3 +11,7 @@ class AppColor {
 
   static const baseColor = Color.fromARGB(255, 81, 112, 223);
 }
+
+class AppConfiguration {
+  static Color bottomNavigationBarColor = AppColor.baseColor;
+}

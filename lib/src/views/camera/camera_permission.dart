@@ -78,14 +78,14 @@ class _CameraPermissionScreenState extends State<CameraPermissionScreen>
               onPressed: () {
                 final firstCamera = _cameraController.description;
 
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => TakePictureScreen(
-                      cameraController: _cameraController,
-                      firstCamera: firstCamera,
-                    ),
-                  ),
-                );
+                // Navigator.of(context).push(
+                //   MaterialPageRoute(
+                //     builder: (context) => ImageUpload(
+                //       // cameraController: _cameraController,
+                //       // firstCamera: firstCamera,
+                //     ),
+                //   ),
+                // );
               },
               child: Text(
                 'Take Picture',

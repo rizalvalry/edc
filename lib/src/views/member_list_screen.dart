@@ -1,6 +1,8 @@
 import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/views/member/member_add.dart';
 import 'package:app_dart/src/views/member_detail_screen.dart';
 import 'package:app_dart/src/views/member_search_delegate.dart';
+import 'package:app_dart/src/views/settlement/settlement_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,7 +13,7 @@ import '../controllers/member_controller.dart';
 
 class MemberListScreen extends StatelessWidget {
   final MemberController _controller = MemberController();
-  final Future<List<Member>> members;
+  Future<List<Member>> members;
   final String currentSort;
 
   MemberListScreen({
@@ -33,13 +35,127 @@ class MemberListScreen extends StatelessWidget {
   }
 
   Future<void> loadMembers(BuildContext context) async {
-    // Fungsi untuk memuat ulang daftar anggota di parent widget
+    try {
+      final newMembers = await _controller.fetchMembers(
+        sort: currentSort,
+        dir: 'ASC',
+      );
+
+      // Memperbarui state `members` dengan data yang baru
+      members = Future.value(newMembers);
+    } catch (error) {
+      // Handle kesalahan jika diperlukan
+      print('Error: $error');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Container(
+        height: 50,
+        child: FittedBox(
+          child: FloatingActionButton(
+            child: Icon(
+              Icons.add,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        MemberAdd()), // Ganti dengan nama halaman Settlement yang sesuai
+              );
+            },
+            backgroundColor: AppColor.darkOrange,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: Container(
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppConfiguration.bottomNavigationBarColor,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(15),
+            topRight: Radius.circular(15),
+          ),
+        ),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MemberListScreen(
+                                members: MemberController().fetchMembers(
+                                    sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
+                                currentSort: 'ASC',
+                              )));
+                },
+                child: Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.home,
+                        color: AppColor.darkOrange,
+                        size: 20,
+                      ),
+                      Text(
+                        'Home',
+                        style:
+                            TextStyle(color: AppColor.darkOrange, fontSize: 10),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            SettlementScreen()), // Ganti dengan nama halaman Settlement yang sesuai
+                  );
+                },
+                child: Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.wallet,
+                        color: AppColor.darkOrange,
+                        size: 20,
+                      ),
+                      Text(
+                        'Settlement',
+                        style:
+                            TextStyle(color: AppColor.darkOrange, fontSize: 10),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
+        // toolbarHeight: ,
+        shape: ShapeBorder.lerp(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          null,
+          0,
+        ),
         systemOverlayStyle: SystemUiOverlayStyle(
           systemNavigationBarColor: AppColor.baseColor,
           statusBarColor: AppColor.baseColor,
@@ -99,9 +215,19 @@ class MemberListScreen extends StatelessWidget {
                         loadMembers(context);
                       }
                     },
-                    child: ListTile(
-                      title: Text(membersData[index].memberName),
-                      subtitle: Text(membersData[index].registrationName),
+                    child: Padding(
+                      padding: EdgeInsets.all(5),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              12.0), // Mengatur sudut melengkung
+                        ),
+                        shadowColor: AppColor.baseColor,
+                        child: ListTile(
+                          title: Text(membersData[index].memberName),
+                          subtitle: Text(membersData[index].registrationName),
+                        ),
+                      ),
                     ),
                   );
                 },

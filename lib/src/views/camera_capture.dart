@@ -1,152 +1,172 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
+import 'package:app_dart/src/config/app_color.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final cameras = await availableCameras();
-  final firstCamera = cameras.first;
+class ImageUpload extends StatefulWidget {
+  final String memberId;
 
-  runApp(
-    MaterialApp(
-      theme: ThemeData.dark(),
-      home: TakePictureScreen(
-        cameraController: CameraController(
-          firstCamera,
-          ResolutionPreset.medium,
-        ),
-        firstCamera: firstCamera, // Tambahkan firstCamera sebagai argumen
-      ),
-    ),
-  );
-}
-
-class TakePictureScreen extends StatelessWidget {
-  final CameraController? cameraController;
-  final CameraDescription firstCamera;
-
-  const TakePictureScreen({
-    Key? key,
-    required this.cameraController,
-    required this.firstCamera, // Tambahkan parameter firstCamera
-  }) : super(key: key);
+  ImageUpload({required this.memberId});
 
   @override
-  Widget build(BuildContext context) {
-    final initializeControllerFuture = (cameraController ??
-            CameraController(firstCamera, ResolutionPreset.medium))
-        .initialize();
-
-    return WillPopScope(
-      onWillPop: () async {
-        cameraController?.dispose(); // Menghentikan dan me-"dispose" kamera
-        return true; // Izinkan pengguna untuk kembali
-      },
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Take a picture')),
-        body: FutureBuilder<void>(
-          future: initializeControllerFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              return CameraPreview(cameraController!);
-            } else {
-              return const Center(child: CircularProgressIndicator());
-            }
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            try {
-              final image = await (cameraController ??
-                      CameraController(firstCamera, ResolutionPreset.medium))
-                  .takePicture();
-
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => DisplayPictureScreen(
-                    imagePath: image.path,
-                  ),
-                ),
-              );
-            } catch (e) {
-              print(e);
-            }
-          },
-          child: const Icon(Icons.camera_alt),
-        ),
-      ),
-    );
+  State<StatefulWidget> createState() {
+    return _ImageUploadState();
   }
 }
 
-Future<void> uploadImage(String base64Image) async {
-  final url = Uri.parse(
-      'https://example.com/upload'); // Ganti URL sesuai dengan endpoint server Anda.
+class _ImageUploadState extends State<ImageUpload> {
+  File? capturedImage; // Gambar yang diambil dari kamera
+  File? uploadimage; // Gambar yang dipilih dari galeri
+  bool isImageSelected = false;
 
+  Future<void> chooseImage() async {
+    var imagePicker = ImagePicker();
+    var pickedImage = await imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      setState(() {
+        uploadimage = File(pickedImage.path);
+        isImageSelected =
+            true; // Setelah gambar dipilih, atur isImageSelected menjadi true
+      });
+    }
+  }
+
+  Future<void> captureImageAndUpload() async {
+    var imagePicker = ImagePicker();
+    var capturedImageFile =
+        await imagePicker.pickImage(source: ImageSource.camera);
+    if (capturedImageFile != null) {
+      setState(() {
+        capturedImage = File(capturedImageFile.path);
+        isImageSelected =
+            true; // Setelah gambar diambil dari kamera, atur isImageSelected menjadi true
+      });
+
+      // Panggil metode untuk mengunggah gambar setelah diambil
+      await uploadImage(capturedImage!, widget.memberId);
+    }
+  }
+
+  Future<void> uploadImage(File imageToUpload, String memberId) async {
+  String uploadurl = "http://192.168.18.103/wartelsus/members/updateImageProperti";
+  
   try {
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type':
-            'application/json', // Sesuaikan tipe konten dengan kebutuhan Anda.
+    List<int> imageBytes = imageToUpload.readAsBytesSync();
+    String baseImage = base64Encode(imageBytes);
+
+    var response = await http.post(
+      Uri.parse(uploadurl),
+      body: {
+        'Id': memberId,
+        'photo': baseImage,
       },
-      body: jsonEncode({
-        'imageData': base64Image, // Kirim data gambar dalam format base64.
-      }),
     );
 
     if (response.statusCode == 200) {
-      // Gambar berhasil diupload.
-      print('Gambar berhasil diupload');
+      var jsondata = json.decode(response.body);
+      if (jsondata["error"]) {
+        print(jsondata["msg"]);
+      } else {
+        print("Upload berhasil");
+      }
     } else {
-      // Terjadi kesalahan saat mengupload gambar.
-      print('Terjadi kesalahan: ${response.reasonPhrase}');
+      print("Error selama koneksi ke server");
     }
   } catch (e) {
-    // Tangani kesalahan jaringan atau lainnya.
-    print('Terjadi kesalahan: $e');
+    print("Error selama konversi ke Base64: $e");
   }
 }
 
-class DisplayPictureScreen extends StatelessWidget {
-  final String imagePath;
 
-  const DisplayPictureScreen({Key? key, required this.imagePath})
-      : super(key: key);
+  // Future<void> uploadImage(File imageToUpload) async {
+  //   String memberId = widget.memberId; // Mendapatkan memberId dari widget
+  //   String fileName =
+  //       "CAPTURE$memberId.png"; // Nama file sesuai dengan memberId
+  //   String uploadurl = "http://192.168.18.106/test/image_upload.php";
 
-  void _handleSaveButtonPressed() async {
-    final file = File(imagePath);
-    if (file.existsSync()) {
-      final bytes = file.readAsBytesSync();
-      final base64Image = base64Encode(bytes);
+  //   try {
+  //     List<int> imageBytes = imageToUpload.readAsBytesSync();
+  //     String baseimage = base64Encode(imageBytes);
 
-      // Panggil fungsi uploadImage untuk mengirim gambar ke server.
-      await uploadImage(base64Image);
-    }
-  }
+  //     var response = await http.post(
+  //       Uri.parse(uploadurl),
+  //       body: {
+  //         'image': baseimage,
+  //         'memberId': memberId, // Menambahkan memberId sebagai parameter
+  //         'fileName': fileName, // Menambahkan fileName sebagai parameter
+  //       },
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       var jsondata = json.decode(response.body);
+  //       if (jsondata["error"]) {
+  //         print(jsondata["msg"]);
+  //       } else {
+  //         print("Upload berhasil");
+  //       }
+  //     } else {
+  //       print("Error selama koneksi ke server");
+  //     }
+  //   } catch (e) {
+  //     print("Error selama konversi ke Base64");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Display the Picture')),
-      body: Stack(
-        children: [
-          Image.file(File(imagePath)),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: FloatingActionButton(
-                onPressed: _handleSaveButtonPressed,
-                child: Icon(Icons.save),
+      appBar: AppBar(
+        backgroundColor: AppColor.baseColor,
+        title: Text("Upload Image to Server"),
+      ),
+      body: Container(
+        height: 300,
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              child: isImageSelected &&
+                      (uploadimage != null || capturedImage != null)
+                  ? SizedBox(
+                      height: 150,
+                      child: Image.file(uploadimage ?? capturedImage!),
+                    )
+                  : Container(),
+            ),
+            Container(
+              child: uploadimage == null || isImageSelected == null
+                  ? Container()
+                  : ElevatedButton.icon(
+                      onPressed: () {
+                        uploadImage(uploadimage!, widget.memberId);
+                      },
+                      icon: Icon(Icons.file_upload),
+                      label: Text("UPLOAD IMAGE"),
+                    ),
+            ),
+            Container(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  chooseImage();
+                },
+                icon: Icon(Icons.image),
+                label: Text("Choose Image"),
               ),
             ),
-          ),
-        ],
+            Container(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  captureImageAndUpload();
+                },
+                icon: Icon(Icons.camera_alt),
+                label: Text("Capture IMAGE"),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

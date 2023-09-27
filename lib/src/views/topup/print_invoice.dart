@@ -27,7 +27,11 @@ class PrintInvoice extends StatelessWidget {
       required this.amount,
       required this.closebalance,
       required this.balance,
-      required this.idmember});
+      required this.idmember}) {
+         assert(amount != null);
+    assert(closebalance != null);
+    assert(balance != null);
+      }
 
   String formatCurrency(double value) {
     // Ubah nilai double menjadi format mata uang
@@ -61,7 +65,7 @@ class PrintInvoice extends StatelessWidget {
                 pdfLib.Text('Invoice Date:',
                     style: pdfLib.TextStyle(
                         fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
-                pdfLib.Text(date, style: pdfLib.TextStyle(fontSize: 22)),
+                pdfLib.Text(date ?? '', style: pdfLib.TextStyle(fontSize: 22)),
               ],
             ),
           ),
@@ -72,7 +76,7 @@ class PrintInvoice extends StatelessWidget {
                 pdfLib.Text('TX Code:',
                     style: pdfLib.TextStyle(
                         fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
-                pdfLib.Text(txCode, style: pdfLib.TextStyle(fontSize: 22)),
+                pdfLib.Text(txCode ?? '', style: pdfLib.TextStyle(fontSize: 22)),
               ],
             ),
           ),
@@ -83,7 +87,7 @@ class PrintInvoice extends StatelessWidget {
                 pdfLib.Text('Nomor Kartu:',
                     style: pdfLib.TextStyle(
                         fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
-                pdfLib.Text(cardNumber, style: pdfLib.TextStyle(fontSize: 22)),
+                pdfLib.Text(cardNumber ?? '', style: pdfLib.TextStyle(fontSize: 22)),
               ],
             ),
           ),
@@ -95,7 +99,7 @@ class PrintInvoice extends StatelessWidget {
                 pdfLib.Text('ID Member:',
                     style: pdfLib.TextStyle(
                         fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
-                pdfLib.Text(idmember, style: pdfLib.TextStyle(fontSize: 22)),
+                pdfLib.Text(idmember ?? '', style: pdfLib.TextStyle(fontSize: 22)),
               ],
             ),
           ),
@@ -106,7 +110,7 @@ class PrintInvoice extends StatelessWidget {
                 pdfLib.Text('Nama Member:',
                     style: pdfLib.TextStyle(
                         fontSize: 22, fontWeight: pdfLib.FontWeight.bold)),
-                pdfLib.Text(memberName, style: pdfLib.TextStyle(fontSize: 22)),
+                pdfLib.Text(memberName ?? '', style: pdfLib.TextStyle(fontSize: 22)),
               ],
             ),
           ),
@@ -308,7 +312,7 @@ class PrintInvoice extends StatelessWidget {
                         );
                       },
                       icon: Icon(
-                          Icons.arrow_back), // Ikon cetak (misalnya, printer)
+                          Icons.done), // Ikon cetak (misalnya, printer)
                       label: Text('Kembali',
                           style: TextStyle(color: AppColor.darkOrange)),
                       style:

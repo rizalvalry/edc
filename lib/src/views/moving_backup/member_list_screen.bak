@@ -1,0 +1,188 @@
+import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/views/member/member_add.dart';
+import 'package:app_dart/src/views/member_detail_screen.dart';
+import 'package:app_dart/src/views/member_search_delegate.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../models/member.dart';
+import '../controllers/member_controller.dart';
+
+class MemberListScreen extends StatelessWidget {
+  final MemberController _controller = MemberController();
+  final Future<List<Member>> members;
+  final String currentSort;
+
+  MemberListScreen({
+    required this.members,
+    required this.currentSort,
+  });
+
+  void toggleSort(BuildContext context) {
+    // Fungsi untuk memanggil perubahan urutan di parent widget
+    // (Anda perlu mengimplementasikan ini di parent widget)
+  }
+
+  void showMemberSearch(BuildContext context) {
+    // Fungsi untuk menampilkan kotak pencarian
+    showSearch(
+      context: context,
+      delegate: MemberSearchDelegateCustom(members),
+    );
+  }
+
+  Future<void> loadMembers(BuildContext context) async {
+    try {
+      final newMembers = await _controller.fetchMembers(
+        sort: currentSort,
+        dir: 'ASC',
+      );
+
+      // Memperbarui state `members` dengan data yang baru
+      // members = Future.value(newMembers);
+    } catch (error) {
+      // Handle kesalahan jika diperlukan
+      print('Error: $error');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2, // Jumlah tab (Member dan Settlement)
+      child: Scaffold(
+        appBar: AppBar(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          systemOverlayStyle: SystemUiOverlayStyle(
+            systemNavigationBarColor: AppColor.baseColor,
+            statusBarColor: AppColor.baseColor,
+          ),
+          title: TabBar(
+            tabs: [
+              Tab(text: 'Member'),
+              Tab(text: 'Settlement'),
+            ],
+          ),
+          backgroundColor: AppColor.baseColor,
+          actions: [
+            IconButton(
+              icon: Icon(
+                Icons.search,
+                color: AppColor.darkOrange,
+              ),
+              onPressed: () {
+                showMemberSearch(context);
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.sort, color: AppColor.darkOrange),
+              onPressed: () {
+                toggleSort(context);
+              },
+            ),
+          ],
+        ),
+        body: TabBarView(
+          children: [
+            // Tampilan untuk Member
+            RefreshIndicator(
+              onRefresh: () {
+                return loadMembers(context);
+              },
+              child: FutureBuilder<List<Member>>(
+                future: members,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasData) {
+                    final membersData = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: membersData.length,
+                      itemBuilder: (context, index) {
+                        return InkWell(
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MemberDetailScreen(
+                                  memberId: membersData[index].memberId,
+                                ),
+                              ),
+                            );
+
+                            if (result == true) {
+                              // Perbarui data atau state yang diperlukan di sini
+                              loadMembers(context);
+                            }
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              shadowColor: AppColor.baseColor,
+                              child: ListTile(
+                                title: Text(membersData[index].memberName),
+                                subtitle: Text(
+                                    membersData[index].registrationName),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else {
+                    return Center(
+                      child: Text('Tidak ada data ditemukan.'),
+                    );
+                  }
+                },
+              ),
+            ),
+
+            // Tampilan untuk Settlement
+            Center(
+              child: Text(
+                'Settlement : Settle',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColor.darkOrange,
+                ),
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MemberAdd()),
+            );
+          },
+          child: Icon(Icons.add), // Ganti dengan ikon yang sesuai
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      ),
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: MemberListScreen(
+      members: MemberController()
+          .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
+      currentSort: 'ASC',
+    ),
+  ));
+}

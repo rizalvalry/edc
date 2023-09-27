@@ -3,10 +3,11 @@ import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/models/member_detail.dart';
 // import 'package:app_dart/src/views/camera/camera_permission.dart';
 import 'package:app_dart/src/views/camera_capture.dart';
+import 'package:app_dart/src/views/member_list_screen.dart';
 import 'package:app_dart/src/views/topup/print_invoice.dart';
 import 'package:app_dart/src/views/topup/tag_read.dart';
 import 'package:app_dart/src/views/topup/topup_member.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:cached_network_image/cached_network_image.dart';
 import 'package:draggable_home/draggable_home.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -15,6 +16,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_dart/src/views/form_row.dart';
 import 'package:app_dart/src/views/topup/nfc_session.dart';
+import 'dart:convert';
+
+import 'package:toggle_switch/toggle_switch.dart';
 
 class MemberDetailScreen extends StatefulWidget {
   final String memberId;
@@ -28,8 +32,8 @@ class MemberDetailScreen extends StatefulWidget {
 class _MemberDetailScreenState extends State<MemberDetailScreen>
     with WidgetsBindingObserver {
   late Future<MemberDetail> _memberDetail;
-  bool _cameraInitialized = false;
-  late CameraController _cameraController;
+  bool isStatusActive = false; // Inisialisasi status
+  bool isLoading = false;
 
   String kodeCabang = '';
   String memberName = '';
@@ -38,6 +42,8 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
   final http.Client _httpClient = http.Client();
 
   TextEditingController regIdController = TextEditingController();
+  TextEditingController regNameController = TextEditingController();
+  TextEditingController memberNameController = TextEditingController();
   TextEditingController areaController = TextEditingController();
   TextEditingController roomController = TextEditingController();
   TextEditingController perkaraController = TextEditingController();
@@ -45,6 +51,66 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
   TextEditingController activeController = TextEditingController();
   TextEditingController branchController = TextEditingController();
   TextEditingController balanceController = TextEditingController();
+
+  void _updateMemberData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    final userid = prefs.getString('userid') ?? '';
+    final branchid = prefs.getString('branchid') ?? '';
+
+    final url =
+        Uri.parse('http://192.168.18.103/wartelsus/members/crud_members');
+    final response = await http.post(
+      url,
+      body: {
+        'Id': widget.memberId.toString(),
+        'Active': isStatusActive.toString(),
+        'RegistrationId': regIdController.text,
+        'RegistrationName': regNameController.text,
+        'MemberName': memberNameController.text,
+        'Area': areaController.text,
+        'Room': roomController.text,
+        'Case': perkaraController.text,
+        'BranchId': branchid,
+        'Userid': userid,
+      },
+    );
+
+    setState(() {
+      isLoading = false;
+    });
+
+    if (response.statusCode == 200) {
+      final responseBody = json.decode(response.body);
+      final message = responseBody['success']['message'];
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+
+      // Refresh halaman MemberDetailScreen
+      setState(() {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => MemberListScreen(
+            members: MemberController()
+                .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
+            currentSort: 'ASC',
+          ),
+        ));
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Gagal melakukan update"),
+        ),
+      );
+    }
+  }
 
   MemberDetail memberDetail = MemberDetail(
     memberId: 0,
@@ -65,19 +131,22 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
     super.initState();
     WidgetsBinding.instance!.addObserver(this); // Tambahkan observer
     _memberDetail = MemberController().fetchMemberDetail(widget.memberId);
-    initCamera();
-
+    // initCamera();
     _getKodeCabang();
 
     _memberDetail.then((detail) {
       setState(() {
         memberDetail = detail;
+        isStatusActive = memberDetail.active == "1";
         regIdController.text = memberDetail.regId;
+        regNameController.text = memberDetail.regName;
+        memberNameController.text = memberDetail.memberName;
         areaController.text = memberDetail.area;
         roomController.text = memberDetail.room ?? '-';
         perkaraController.text = memberDetail.perkara;
         pinController.text = memberDetail.pin;
-        activeController.text = memberDetail.active;
+        activeController.text =
+            memberDetail.active == "1" ? 'Aktif' : 'Tidak Aktif';
         branchController.text = memberDetail.branch;
         balanceController.text = memberDetail.balance;
       });
@@ -91,45 +160,6 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
     print(kodeCabang);
     setState(
         () {}); // Membuat widget melakukan rebuild setelah mendapatkan kodecabang
-  }
-
-  // Fungsi untuk membuka kamera
-  Future<void> initCamera() async {
-    final cameras = await availableCameras();
-    final firstCamera = cameras.first;
-
-    _cameraController = CameraController(
-      firstCamera,
-      ResolutionPreset.medium,
-      enableAudio: false,
-    );
-
-    try {
-      await _cameraController.initialize();
-      if (mounted) {
-        setState(() {
-          _cameraInitialized = true;
-        });
-      }
-    } catch (e) {
-      print('Error initializing camera: $e');
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      if (_cameraController != null) {
-        initCamera(); // Inisialisasi ulang kamera saat aplikasi dilanjutkan dari background
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _cameraController.dispose();
-    WidgetsBinding.instance!.removeObserver(this); // Hapus observer
-    super.dispose();
   }
 
   @override
@@ -163,16 +193,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
                 color: AppColor.darkOrange,
               ),
             ),
-            // IconButton(
-            //   onPressed: () {
-            //     Navigator.of(context).push(
-            //       MaterialPageRoute(
-            //           builder: (context) =>
-            //               PrintInvoice('Anugerah Vata abadi')),
-            //     );
-            //   },
-            //   icon: const Icon(Icons.touch_app),
-            // ),
+
             Padding(
               padding: EdgeInsets.only(right: 15.0),
               child: InkWell(
@@ -220,13 +241,61 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
           ),
         ),
         CustomTextField(label: 'Reg ID', controller: regIdController),
+        CustomTextField(
+            label: 'Registrasi Nama', controller: regNameController),
+        CustomTextField(
+            label: 'Nama Anggota', controller: memberNameController),
         CustomTextField(label: 'Area', controller: areaController),
         CustomTextField(label: 'Room', controller: roomController),
         CustomTextField(label: 'Perkara', controller: perkaraController),
-        CustomTextField(label: 'Pin', controller: pinController),
-        CustomTextField(label: 'Active', controller: activeController),
+        // CustomTextField(label: 'Pin', controller: pinController),
+        // CustomTextField(label: 'Status', controller: activeController),
+        ToggleSwitch(
+          minWidth: 90.0,
+          initialLabelIndex: isStatusActive ? 0 : 1,
+          activeBgColor: [Colors.green],
+          inactiveBgColor: Colors.red,
+          labels: ['Aktif', 'Tidak Aktif'],
+          onToggle: (index) {
+            setState(() {
+              isStatusActive = index == 0;
+            });
+          },
+        ),
+
         CustomTextField(label: 'Branch', controller: branchController),
         CustomTextField(label: 'Balance', controller: balanceController),
+        ElevatedButton(
+          onPressed: () {
+            if (!isLoading) {
+              _updateMemberData(); // Panggil fungsi untuk melakukan POST ke URL
+            }
+          },
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(AppColor
+                .baseColor), // Ganti dengan warna latar belakang yang Anda inginkan
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(10.0), // Atur radius sesuai keinginan
+              ),
+            ),
+            elevation: MaterialStateProperty.all<double>(
+                8.0), // Atur tinggi shadow sesuai keinginan
+            shadowColor: MaterialStateProperty.all<Color>(Colors.black),
+            minimumSize: MaterialStateProperty.all<Size>(
+              Size(200.0,
+                  50.0), // Sesuaikan ukuran sesuai keinginan (lebar x tinggi)
+            ),
+          ),
+          child: isLoading
+              ? CircularProgressIndicator(
+                  // Tampilkan loading indicator saat isLoading adalah true
+                  color: AppColor.darkOrange,
+                )
+              : Text("Update"),
+        ),
+        SizedBox(height: 20),
       ],
       fullyStretchable: true,
       backgroundColor: Colors.white,
@@ -242,56 +311,17 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
       children: [
         IconButton(
           onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text('Select Source'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(); // Tutup dialog
-                          _openCamera(context); // Buka kamera
-                        },
-                        child: Text('Take Picture'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(); // Tutup dialog
-                          // _openGallery(context); // Buka galeri
-                        },
-                        child: Text('Get From Gallery'),
-                      ),
-                    ],
-                  ),
-                );
-              },
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ImageUpload(memberId: widget.memberId),
+              ),
             );
           },
           icon: const Icon(Icons.camera_alt),
           color: AppColor.darkOrange,
         ),
       ],
-    );
-  }
-
-  // Fungsi untuk membuka kamera
-  void _openCamera(BuildContext context) async {
-    final cameras = await availableCameras();
-    final firstCamera = cameras.first;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TakePictureScreen(
-          cameraController: CameraController(
-            firstCamera,
-            ResolutionPreset.medium,
-          ),
-          firstCamera: firstCamera,
-        ),
-      ),
     );
   }
 

@@ -50,3 +50,11 @@ class Member {
     );
   }
 }
+
+
+class UserData {
+  final String branchId;
+  final String userId;
+
+  UserData(this.branchId, this.userId);
+}

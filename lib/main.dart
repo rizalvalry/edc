@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 // import 'package:app_dart/src/config/app_theme.dart';
 // import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/imei.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
@@ -97,15 +99,38 @@ class MyApp extends StatelessWidget {
       // Perangkat diizinkan
       return MaterialApp(
         title: 'Daftar Member',
-        home: MemberListScreen(
-          members: MemberController()
-              .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
-          currentSort: 'ASC',
-        ),
+        home: SplashScreen(),
         debugShowCheckedModeBanner: false,
       );
     }
 
     return Container();
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    Timer(Duration(seconds: 8), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MemberListScreen(
+            members: MemberController()
+                .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
+            currentSort: 'ASC',
+          ),
+        ),
+      );
+    });
+
+    return Scaffold(
+      body: Container(
+        color: AppColor.baseColor,
+        child: Center(
+          child: Image.asset('assets/images/welcome.png', fit: BoxFit.contain),
+        ),
+      ),
+    );
   }
 }

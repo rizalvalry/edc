@@ -63,16 +63,19 @@ class MemberController {
     return '$memberId';
   }
 
-  Future<Widget> loadImage(String memberId) async {
-    final http.Client httpClient = http.Client();
+//   String getImageUrl(String memberId) {
+//   final timestamp = DateTime.now().millisecondsSinceEpoch;
+//   return '$memberId?t=$timestamp'; // Menambahkan timestamp sebagai parameter
+// }
 
+  Future<Widget> loadImage(String memberId) async {
     final baseUrl = await BaseUrl.getMemberImageBaseUrl();
-    final imageUrl = '${baseUrl}/CAPTURE$memberId.png';
+    final imageUrl = '$baseUrl/CAPTURE$memberId.png';
 
     print(imageUrl);
 
     try {
-      final response = await httpClient.head(Uri.parse(imageUrl));
+      final response = await http.head(Uri.parse(imageUrl));
       if (response.statusCode == 404) {
         return ClipOval(
           child: Image.asset(
@@ -84,10 +87,23 @@ class MemberController {
         );
       } else {
         return ClipOval(
-          child: CachedNetworkImage(
-            imageUrl: imageUrl,
-            placeholder: (context, url) => CircularProgressIndicator(),
-            errorWidget: (context, url, error) => Icon(Icons.error),
+          child: Image.network(
+            imageUrl,
+            loadingBuilder: (BuildContext context, Widget child,
+                ImageChunkEvent? loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+              return CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              );
+            },
+            errorBuilder: (context, object, stackTrace) {
+              return Icon(Icons.error);
+            },
             height: 100,
             width: 100,
             fit: BoxFit.cover,
@@ -97,8 +113,45 @@ class MemberController {
     } catch (e) {
       print('Error loading image: $e');
       return Container();
-    } finally {
-      httpClient.close();
     }
   }
+
+  // Future<Widget> loadImage(String memberId) async {
+  //   final http.Client httpClient = http.Client();
+
+  //   final baseUrl = await BaseUrl.getMemberImageBaseUrl();
+  //   final imageUrl = '${baseUrl}/CAPTURE$memberId.png';
+
+  //   print(imageUrl);
+
+  //   try {
+  //     final response = await httpClient.head(Uri.parse(imageUrl));
+  //     if (response.statusCode == 404) {
+  //       return ClipOval(
+  //         child: Image.asset(
+  //           'assets/images/no-photos.png',
+  //           fit: BoxFit.cover,
+  //           height: 100,
+  //           width: 100,
+  //         ),
+  //       );
+  //     } else {
+  //       return ClipOval(
+  //         child: CachedNetworkImage(
+  //           imageUrl: imageUrl,
+  //           placeholder: (context, url) => CircularProgressIndicator(),
+  //           errorWidget: (context, url, error) => Icon(Icons.error),
+  //           height: 100,
+  //           width: 100,
+  //           fit: BoxFit.cover,
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print('Error loading image: $e');
+  //     return Container();
+  //   } finally {
+  //     httpClient.close();
+  //   }
+  // }
 }

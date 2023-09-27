@@ -58,4 +58,9 @@ class BaseUrl {
     final serverIpAddress = BaseUrl.serverIpAddress;
     return 'http://$serverIpAddress/edc/POSTtopup';
   }
+
+  String memberAddAction() {
+     final serverIpAddress = BaseUrl.serverIpAddress;
+    return 'http://$serverIpAddress/members/crud_members';
+  }
 }

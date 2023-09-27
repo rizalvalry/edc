@@ -33,6 +33,8 @@ class TagReadModel with ChangeNotifier {
     this.reffNumber, // Tanda tanya (?) menunjukkan parameter opsional
     this.branchid,
     this.amount,
+    this.closebalance,
+    this.balance,
     this.idmember,
     this.datetime,
     this.uid,
@@ -48,6 +50,8 @@ class TagReadModel with ChangeNotifier {
   String? reffNumber; // Tambahkan parameter reffNumber dengan tanda tanya (?)
   String? branchid; // Tambahkan parameter branchid dengan tanda tanya (?)
   String? amount; // Tambahkan parameter amount dengan tanda tanya (?)
+  String? closebalance;
+  String? balance;
   String? idmember; // Tambahkan parameter idmember dengan tanda tanya (?)
   String? datetime; // Tambahkan parameter datetime dengan tanda tanya (?)
   String? uid; // Tambahkan parameter uid dengan tanda tanya (?)
@@ -147,6 +151,11 @@ class TagReadModel with ChangeNotifier {
             final trx_code = results['trx_code'].toString();
             final idmember = results['idmember'].toString();
 
+            double amountValue = double.tryParse(amount ?? '0.0') ?? 0.0;
+            double closebalanceValue =
+                double.tryParse(closebalance ?? '0.0') ?? 0.0;
+            double balanceValue = double.tryParse(balance ?? '0.0') ?? 0.0;
+
             // Navigasi ke halaman print_invoice.dart dengan memberikan parameter
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -156,10 +165,10 @@ class TagReadModel with ChangeNotifier {
                   txCode: trx_code,
                   cardNumber: uidDecimal.toString(),
                   memberName: member,
-                  amount: amount,
+                  amount: amountValue.toString(),
                   idmember: idmember,
-                  balance: balance,
-                  closebalance: closebalance,
+                  balance: balanceValue.toString(),
+                  closebalance: closebalanceValue.toString(),
                 ),
               ),
             );
@@ -184,12 +193,16 @@ class TagReadPage extends StatelessWidget {
   final String memberId;
   final String actionType;
   String? amount;
+  String? closebalance;
+  String? balance;
 
   TagReadPage(
       {required this.kodeCabang,
       required this.memberId,
       required this.actionType,
-      this.amount});
+      this.amount,
+      this.closebalance,
+      this.balance});
   Widget withDependency() => ChangeNotifierProvider<TagReadModel>(
         create: (context) => TagReadModel(
           kodeCabang: kodeCabang,
