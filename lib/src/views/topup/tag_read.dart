@@ -1,10 +1,11 @@
+// ignore_for_file: unused_import, unused_local_variable, avoid_print, non_constant_identifier_names, use_build_context_synchronously, use_key_in_widget_constructors, deprecated_member_use, must_be_immutable, body_might_complete_normally_nullable
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/config/my_utils.dart';
-import 'package:app_dart/src/views/form_row.dart';
-import 'package:app_dart/src/views/ndef_record.dart';
+import 'package:app_dart/src/views/auth/ndef_record.dart';
 import 'package:app_dart/src/views/topup/nfc_session.dart';
 import 'package:app_dart/src/views/topup/print_invoice.dart';
 
@@ -47,19 +48,23 @@ class TagReadModel with ChangeNotifier {
   String? kodeCabang;
   String? memberId;
   String? actionType;
-  String? reffNumber; // Tambahkan parameter reffNumber dengan tanda tanya (?)
-  String? branchid; // Tambahkan parameter branchid dengan tanda tanya (?)
-  String? amount; // Tambahkan parameter amount dengan tanda tanya (?)
+  String? reffNumber;
+  String? branchid;
+  String? amount;
   String? closebalance;
   String? balance;
-  String? idmember; // Tambahkan parameter idmember dengan tanda tanya (?)
-  String? datetime; // Tambahkan parameter datetime dengan tanda tanya (?)
-  String? uid; // Tambahkan parameter uid dengan tanda tanya (?)
+  String? idmember;
+  String? datetime;
+  String? uid;
 
   NfcTag? tag;
 
   Map<String, dynamic>? additionalData;
   String? responseOut;
+
+  String responseTopUpFirst =
+      ""; // Inisialisasi responseTopUpFirst dengan string kosong
+  String responseTopUp = ""; // Inisialisasi responseTopUp dengan string kosong
 
   Future<String?> handleTag(NfcTag tag, BuildContext context) async {
     this.tag = tag;
@@ -67,6 +72,7 @@ class TagReadModel with ChangeNotifier {
 
     Object? tech;
     String? uid;
+    // final res = responseMessage;
 
     final baseUrl = BaseUrl();
     final resetPinUrl = baseUrl.postResetPinMember();
@@ -121,7 +127,7 @@ class TagReadModel with ChangeNotifier {
             url,
             body: {
               'trx_code': '01',
-              'reff_number': userid ?? '',
+              'reff_number': userid,
               'branchid': kodeCabang ?? '',
               'amount': amount ?? '',
               'idmember': memberId ?? '',
@@ -137,6 +143,12 @@ class TagReadModel with ChangeNotifier {
             final data = json.decode(response.body);
             final results = data;
 
+            responseTopUpFirst = results['responsemesage'].toString();
+
+            // Simpan data ke SharedPreferences
+            final sharedPreferences = await SharedPreferences.getInstance();
+            sharedPreferences.setString('lastTopUpData', json.encode(results));
+
             print(results);
             responseOut = "Top Up Member"; // Atur nilai di sini
 
@@ -151,10 +163,16 @@ class TagReadModel with ChangeNotifier {
             final trx_code = results['trx_code'].toString();
             final idmember = results['idmember'].toString();
 
-            double amountValue = double.tryParse(amount ?? '0.0') ?? 0.0;
-            double closebalanceValue =
-                double.tryParse(closebalance ?? '0.0') ?? 0.0;
-            double balanceValue = double.tryParse(balance ?? '0.0') ?? 0.0;
+            print("check hasil topUP");
+            print(responseMessage);
+
+            double amountValue = double.tryParse(amount) ?? 0.0;
+            double closebalanceValue = double.tryParse(closebalance) ?? 0.0;
+            double balanceValue = double.tryParse(balance) ?? 0.0;
+
+            // Simpan uidDecimal ke dalam shared preferences
+            final prefs = await SharedPreferences.getInstance();
+            prefs.setString('uidDecimal', uidDecimal.toString());
 
             // Navigasi ke halaman print_invoice.dart dengan memberikan parameter
             Navigator.of(context).push(
@@ -179,12 +197,18 @@ class TagReadModel with ChangeNotifier {
           }
 
           responseOut = "Top Up"; // Atur nilai di sini
+          responseTopUp = responseTopUpFirst;
         }
       }
     }
 
     notifyListeners();
-    return '$responseOut Berhasil.';
+
+    if (responseOut == "Top Up") {
+      return '${responseTopUp}';
+    } else if (responseOut == "Reset Pin") {
+      return '$responseOut Berhasil';
+    }
   }
 }
 
@@ -227,16 +251,17 @@ class TagReadPage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
+              icon:
+                  const Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
               onPressed: () {
                 Navigator.of(context).pop();
               }),
           backgroundColor: AppColor.baseColor,
           title: Text(
             'NFC Read - $actionType [$kodeCabang]',
-            style: TextStyle(color: AppColor.darkOrange),
+            style: const TextStyle(color: AppColor.darkOrange),
           ),
-          actions: <Widget>[],
+          actions: const <Widget>[],
         ),
         body: Center(
           child: Column(
@@ -258,9 +283,9 @@ class TagReadPage extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0), // Bentuk tombol
                   ),
-                  padding: EdgeInsets.all(16.0), // Padding tombol
+                  padding: const EdgeInsets.all(16.0), // Padding tombol
                 ),
-                child: Text(
+                child: const Text(
                   "RESET PIN MEMBER",
                   style: TextStyle(
                       fontSize: 18.0,

@@ -1,11 +1,11 @@
+// ignore_for_file: must_be_immutable, unnecessary_import, use_key_in_widget_constructors, library_private_types_in_public_api, prefer_final_fields
+
 import 'package:app_dart/src/config/app_color.dart';
-import 'package:app_dart/src/models/member_detail.dart';
 import 'package:app_dart/src/views/topup/nfc_session.dart';
 import 'package:app_dart/src/views/topup/tag_read.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TopUpMemberScreen extends StatefulWidget {
@@ -60,12 +60,15 @@ class _TopUpMemberScreenState extends State<TopUpMemberScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
+            icon: const Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
             onPressed: () {
               Navigator.of(context).pop();
             }),
         backgroundColor: AppColor.baseColor,
-        title: Text('Top-Up Member - Cabang ${widget.kodeCabang}'),
+        title: Text(
+          'Top-Up Member - Cabang ${widget.kodeCabang}',
+          style: TextStyle(color: AppColor.darkOrange),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -79,31 +82,32 @@ class _TopUpMemberScreenState extends State<TopUpMemberScreen> {
                 Center(
                   child: Text(
                     'ID ${widget.memberId} (${widget.memberName})',
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
                         color: Colors.blueGrey),
                   ),
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 Text(
                   'Jumlah Nominal : ${_currencyFormatter.format(double.tryParse(_nominalController.text) ?? 0)}',
-                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 TextField(
                   controller: _nominalController,
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     setState(() {});
                   },
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     focusColor: Colors.blue,
                     border: OutlineInputBorder(),
                     hintText: 'Masukkan jumlah nominal',
                   ),
                 ),
-                SizedBox(height: 22.0),
+                const SizedBox(height: 22.0),
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -123,7 +127,27 @@ class _TopUpMemberScreenState extends State<TopUpMemberScreen> {
                       },
                     );
                   },
-                  child: Text('Top-Up Sekarang'),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(AppColor
+                        .baseColor), // Ganti dengan warna latar belakang yang Anda inginkan
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            10.0), // Atur radius sesuai keinginan
+                      ),
+                    ),
+                    elevation: MaterialStateProperty.all<double>(
+                        8.0), // Atur tinggi shadow sesuai keinginan
+                    shadowColor: MaterialStateProperty.all<Color>(Colors.black),
+                    minimumSize: MaterialStateProperty.all<Size>(
+                      const Size(200.0,
+                          50.0), // Sesuaikan ukuran sesuai keinginan (lebar x tinggi)
+                    ),
+                  ),
+                  child: const Text(
+                    'Top-Up Sekarang',
+                    style: TextStyle(fontSize: 18, color: AppColor.darkOrange),
+                  ),
                 ),
               ],
             ),

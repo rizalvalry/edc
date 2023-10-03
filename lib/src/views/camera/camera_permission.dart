@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:app_dart/src/views/camera_capture.dart';
 
+// ignore: use_key_in_widget_constructors
 class CameraPermissionScreen extends StatefulWidget {
   @override
+  // ignore: library_private_types_in_public_api
   _CameraPermissionScreenState createState() => _CameraPermissionScreenState();
 }
 
 class _CameraPermissionScreenState extends State<CameraPermissionScreen>
     with WidgetsBindingObserver {
   late CameraController _cameraController;
-  bool _cameraInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this); // Tambahkan observer
+    WidgetsBinding.instance.addObserver(this); // Tambahkan observer
 
     // Memindahkan inisialisasi kamera ke dalam fungsi initCamera
     initCamera();
@@ -35,11 +35,10 @@ class _CameraPermissionScreenState extends State<CameraPermissionScreen>
     try {
       await _cameraController.initialize();
       if (mounted) {
-        setState(() {
-          _cameraInitialized = true;
-        });
+        setState(() {});
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error initializing camera: $e');
     }
   }
@@ -47,16 +46,14 @@ class _CameraPermissionScreenState extends State<CameraPermissionScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      if (_cameraController != null) {
-        initCamera(); // Inisialisasi ulang kamera saat aplikasi dilanjutkan dari background
-      }
+      initCamera(); // Inisialisasi ulang kamera saat aplikasi dilanjutkan dari background
     }
   }
 
   @override
   void dispose() {
     _cameraController.dispose();
-    WidgetsBinding.instance!.removeObserver(this); // Hapus observer
+    WidgetsBinding.instance.removeObserver(this); // Hapus observer
     super.dispose();
   }
 
@@ -64,20 +61,18 @@ class _CameraPermissionScreenState extends State<CameraPermissionScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Camera Standby'),
+        title: const Text('Camera Standby'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
+            const Text(
               'Lanjutkan ke Photo',
               style: TextStyle(fontSize: 16.0),
             ),
             ElevatedButton(
               onPressed: () {
-                final firstCamera = _cameraController.description;
-
                 // Navigator.of(context).push(
                 //   MaterialPageRoute(
                 //     builder: (context) => ImageUpload(
@@ -87,7 +82,7 @@ class _CameraPermissionScreenState extends State<CameraPermissionScreen>
                 //   ),
                 // );
               },
-              child: Text(
+              child: const Text(
                 'Take Picture',
               ),
             ),

@@ -1,12 +1,7 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:app_dart/src/config/base_url.dart';
-import 'package:app_dart/src/models/member.dart';
-import 'package:app_dart/src/models/member_detail.dart';
 import 'package:device_info/device_info.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // validasi device from ZERO
@@ -47,16 +42,20 @@ void sendRequestToLocalhostAPI(String imei, String model, String rc) async {
   try {
     final url = Uri.parse(
         '${BaseUrl.getNotifApiBaseUrl}?phoneimei=$imei&model=$model&rc=$rc');
+    // ignore: avoid_print
     print(url);
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       // final data = json.decode(response.body);
+      // ignore: avoid_print
       print("Notifikasi Berhasil di kirimkan");
     } else {
+      // ignore: avoid_print
       print('Gagal mengambil data dari API Notifikasi');
     }
   } catch (e) {
+    // ignore: avoid_print
     print('Terjadi kesalahan: $e');
   }
 }

@@ -29,7 +29,9 @@ class BaseUrl {
   // Fungsi untuk mendapatkan URL getUserIdByImei secara langsung
   static Future<String> getUserIdByImeiUrlDirectly(String imei) async {
     final serverIpAddress = await BaseUrl.getServerIpAddress();
+    // ignore: avoid_print
     print('test dapat IP');
+    // ignore: avoid_print
     print(serverIpAddress);
     return 'http://$serverIpAddress/edc/GETuseridbyimei?phoneimei=$imei';
   }
@@ -59,8 +61,23 @@ class BaseUrl {
     return 'http://$serverIpAddress/edc/POSTtopup';
   }
 
-  String memberAddAction() {
-     final serverIpAddress = BaseUrl.serverIpAddress;
+  String memberCrudAction() {
+    final serverIpAddress = BaseUrl.serverIpAddress;
     return 'http://$serverIpAddress/members/crud_members';
+  }
+
+  String captureCameraAction() {
+    final serverIpAddress = BaseUrl.serverIpAddress;
+    return 'http://$serverIpAddress/members/updateImageProperti';
+  }
+
+  String settlementAction() {
+    final serverIpAddress = BaseUrl.serverIpAddress;
+    return 'http://$serverIpAddress/edc/POSSettlementEdc';
+  }
+
+  String getImeiSecondAuth(String imei) {
+    final serverIpAddress = BaseUrl.serverIpAddress;
+    return 'http://$serverIpAddress/edc/GETuseridbyimei?phoneimei=$imei';
   }
 }

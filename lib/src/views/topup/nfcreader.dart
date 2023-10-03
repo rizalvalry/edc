@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, curly_braces_in_flow_control_structures, prefer_const_constructors, prefer_const_constructors_in_immutables
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';

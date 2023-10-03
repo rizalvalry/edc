@@ -1,6 +1,4 @@
-import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
-import 'package:snackbar/snackbar.dart';
 
 class FlareAnimationWidget extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -8,7 +6,8 @@ class FlareAnimationWidget extends StatefulWidget {
   final String? actionType;
   final BuildContext previousContext;
 
-  FlareAnimationWidget({
+  const FlareAnimationWidget({
+    super.key,
     required this.scaffoldKey,
     this.alertMessage,
     this.actionType, // Tambahkan parameter actionType
@@ -16,6 +15,7 @@ class FlareAnimationWidget extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _FlareAnimationWidgetState createState() => _FlareAnimationWidgetState();
 }
 
@@ -31,7 +31,7 @@ class _FlareAnimationWidgetState extends State<FlareAnimationWidget> {
     //   Navigator.of(context).pop();
     // }
     // Setelah 2 detik, gambar akan dihapus dari tampilan
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _isVisible = false;
 
@@ -40,7 +40,7 @@ class _FlareAnimationWidgetState extends State<FlareAnimationWidget> {
               .showSnackBar(
                 SnackBar(
                   content: Text(widget.alertMessage!),
-                  duration: Duration(seconds: 2),
+                  duration: const Duration(seconds: 2),
                 ),
               )
               .closed

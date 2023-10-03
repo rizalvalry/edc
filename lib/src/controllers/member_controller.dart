@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/models/member.dart';
 import 'package:app_dart/src/models/member_detail.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,7 +20,7 @@ class MemberController {
       '$memberListUrl'
       '?_dc=1694400095666'
       '&branchID=$kodecabang'
-      '&filter_status=1'
+      '&filter_status=true'
       // '&filter_textSearch='
       // '&page=1'
       '&start=0'
@@ -60,7 +59,7 @@ class MemberController {
   }
 
   String getImageUrl(String memberId) {
-    return '$memberId';
+    return memberId;
   }
 
 //   String getImageUrl(String memberId) {
@@ -72,6 +71,7 @@ class MemberController {
     final baseUrl = await BaseUrl.getMemberImageBaseUrl();
     final imageUrl = '$baseUrl/CAPTURE$memberId.png';
 
+    // ignore: avoid_print
     print(imageUrl);
 
     try {
@@ -102,7 +102,7 @@ class MemberController {
               );
             },
             errorBuilder: (context, object, stackTrace) {
-              return Icon(Icons.error);
+              return const Icon(Icons.error);
             },
             height: 100,
             width: 100,
@@ -111,6 +111,7 @@ class MemberController {
         );
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error loading image: $e');
       return Container();
     }

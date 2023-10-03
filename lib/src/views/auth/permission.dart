@@ -5,10 +5,8 @@ import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/imei.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Permission extends StatefulWidget {
@@ -98,8 +96,8 @@ class _PermissionState extends State<Permission> {
           if (responseApi.statusCode == 200) {
             final data = json.decode(responseApi.body);
             final resultsApi = data['results'];
+            print(resultsApi);
             if (resultsApi != null && resultsApi.isNotEmpty) {
-              final rc = resultsApi[0]['rc'];
               final userid = resultsApi[0]['userid'];
               final loginname = resultsApi[0]['loginname'];
               final branchid = resultsApi[0]['branchid'];

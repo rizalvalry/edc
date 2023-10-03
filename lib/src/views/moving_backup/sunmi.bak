@@ -1,8 +1,54 @@
-// import 'package:flutter/services.dart';
-// import 'package:sunmi_printer_plus/column_maker.dart';
-// import 'package:sunmi_printer_plus/enums.dart';
-// import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
-// import 'package:sunmi_printer_plus/sunmi_style.dart';
+import 'package:flutter/services.dart';
+import 'package:sunmi_printer_plus/column_maker.dart';
+import 'package:sunmi_printer_plus/enums.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
+import 'package:sunmi_printer_plus/sunmi_style.dart';
+
+import 'package:flutter/material.dart';
+
+class SunmiPrinterPage extends StatelessWidget {
+  // final Sunmi sunmi; // Objek Sunmi yang Anda gunakan
+
+  // SunmiPrinterPage({});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Sunmi Printer Page'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: () async {
+                // Panggil metode untuk mencetak
+                await SunmiPrinter.initPrinter();
+                Uint8List byte =
+                    await _getImageFromAsset('assets/images/no-photos.png');
+                await SunmiPrinter.printImage(byte);
+                await SunmiPrinter.printText("Flutter is awesome");
+                // await SunmiPrinter.lineWrap(
+                //   column1: "Column 1",
+                //   column2: "Column 2",
+                //   column3: "Column 3",
+                // );
+                // await sunmi.printQRCode("Dart is powerful");
+                //await sunmi.closePrinter();
+              },
+              child: Text('Cetak'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Future<Uint8List> _getImageFromAsset(String iconPath) async {
+  return await readFileBytes(iconPath);
+}
 
 // class Sunmi {
 //   // initialize sunmi printer
@@ -20,12 +66,12 @@
 //     await SunmiPrinter.lineWrap(1); // creates one line space
 //   }
 
-//   Future<Uint8List> readFileBytes(String path) async {
-//     ByteData fileData = await rootBundle.load(path);
-//     Uint8List fileUnit8List = fileData.buffer
-//         .asUint8List(fileData.offsetInBytes, fileData.lengthInBytes);
-//     return fileUnit8List;
-//   }
+Future<Uint8List> readFileBytes(String path) async {
+  ByteData fileData = await rootBundle.load(path);
+  Uint8List fileUnit8List = fileData.buffer
+      .asUint8List(fileData.offsetInBytes, fileData.lengthInBytes);
+  return fileUnit8List;
+}
 
 //   Future<Uint8List> _getImageFromAsset(String iconPath) async {
 //     return await readFileBytes(iconPath);

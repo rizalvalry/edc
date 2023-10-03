@@ -1,0 +1,34 @@
+
+  // Future<void> uploadImage(File imageToUpload) async {
+  //   String memberId = widget.memberId; // Mendapatkan memberId dari widget
+  //   String fileName =
+  //       "CAPTURE$memberId.png"; // Nama file sesuai dengan memberId
+  //   String uploadurl = "http://192.168.18.106/test/image_upload.php";
+
+  //   try {
+  //     List<int> imageBytes = imageToUpload.readAsBytesSync();
+  //     String baseimage = base64Encode(imageBytes);
+
+  //     var response = await http.post(
+  //       Uri.parse(uploadurl),
+  //       body: {
+  //         'image': baseimage,
+  //         'memberId': memberId, // Menambahkan memberId sebagai parameter
+  //         'fileName': fileName, // Menambahkan fileName sebagai parameter
+  //       },
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       var jsondata = json.decode(response.body);
+  //       if (jsondata["error"]) {
+  //         print(jsondata["msg"]);
+  //       } else {
+  //         print("Upload berhasil");
+  //       }
+  //     } else {
+  //       print("Error selama koneksi ke server");
+  //     }
+  //   } catch (e) {
+  //     print("Error selama konversi ke Base64");
+  //   }
+  // }

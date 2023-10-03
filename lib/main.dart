@@ -1,8 +1,8 @@
-import 'dart:async';
+// ignore_for_file: unused_import
+
 import 'dart:convert';
 // import 'package:app_dart/src/config/app_theme.dart';
 // import 'package:app_dart/src/config/app_color.dart';
-import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/imei.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
@@ -11,7 +11,7 @@ import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'package:path/path.dart';
-import 'src/views/member_list_screen.dart';
+import 'src/views/member/member_list_screen.dart';
 // import 'src/views/member_search_delegate.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -38,9 +38,14 @@ Future<void> main() async {
       final serverIpAddress = results[0]['serveripaddress'];
       // final UUID = results[0]['UUID'];
 
+      // ignore: avoid_print
       print('rc: $rc');
+      // ignore: avoid_print
       print('response: $responseMessage');
+      // ignore: avoid_print
       print('kodecabang: $kodeCabang');
+      // ignore: avoid_print
+      // ignore: avoid_print
       print('serveripaddress: $serverIpAddress');
       // print('UUID: $UUID');
 
@@ -63,6 +68,37 @@ Future<void> main() async {
         String model = androidInfo.androidId;
         sendRequestToLocalhostAPI(imei, model, rc);
       }
+    }
+  }
+
+  AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
+  String imei = androidInfo.androidId;
+  print(imei);
+
+  final baseUrl = BaseUrl();
+  String apiUrl = baseUrl.getImeiSecondAuth(imei);
+
+  var responseApi = await http.get(Uri.parse(apiUrl));
+
+  if (responseApi.statusCode == 200) {
+    final data = json.decode(responseApi.body);
+    final resultsApi = data['results'];
+    print(resultsApi);
+    if (resultsApi != null && resultsApi.isNotEmpty) {
+      final userid = resultsApi[0]['userid'];
+      final loginname = resultsApi[0]['loginname'];
+      final branchid = resultsApi[0]['branchid'];
+
+      // Simpan data ke SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userid', userid.toString());
+      await prefs.setString('loginname', loginname);
+      await prefs.setString('branchid', branchid);
+
+      print('============= Area Admin Diberi Otorisasi Penuh =============');
+      print(userid);
+      print(loginname);
+      print(branchid);
     }
   }
 }
@@ -99,38 +135,15 @@ class MyApp extends StatelessWidget {
       // Perangkat diizinkan
       return MaterialApp(
         title: 'Daftar Member',
-        home: SplashScreen(),
+        home: MemberListScreen(
+          members: MemberController()
+              .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
+          currentSort: 'ASC',
+        ),
         debugShowCheckedModeBanner: false,
       );
     }
 
     return Container();
-  }
-}
-
-class SplashScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    Timer(Duration(seconds: 8), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MemberListScreen(
-            members: MemberController()
-                .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
-            currentSort: 'ASC',
-          ),
-        ),
-      );
-    });
-
-    return Scaffold(
-      body: Container(
-        color: AppColor.baseColor,
-        child: Center(
-          child: Image.asset('assets/images/welcome.png', fit: BoxFit.contain),
-        ),
-      ),
-    );
   }
 }

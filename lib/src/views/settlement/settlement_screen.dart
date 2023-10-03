@@ -1,4 +1,9 @@
+// ignore_for_file: unnecessary_null_comparison, library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/config/base_url.dart';
+import 'package:app_dart/src/controllers/member_controller.dart';
+import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:app_dart/src/views/settlement/print_settlement.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -6,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+// ignore: use_key_in_widget_constructors
 class SettlementScreen extends StatefulWidget {
   @override
   _SettlementScreenState createState() => _SettlementScreenState();
@@ -16,12 +22,121 @@ class _SettlementScreenState extends State<SettlementScreen> {
   late Timer _timer; // Deklarasikan timer di sini
   bool isLoading = false;
 
+  Future<void> rePrintSettlement(String settlementNumber) async {
+    final baseUrl = BaseUrl();
+    final settlementUrl = baseUrl.settlementAction();
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    final userid = prefs.getString('userid') ?? '';
+
+    try {
+      final response = await http.post(
+        Uri.parse(settlementUrl),
+        body: {
+          'reff_number': userid,
+          'settlement_no': settlementNumber,
+        },
+      );
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (response.statusCode == 200) {
+        // Permintaan berhasil
+        final responseData = response.body;
+        print('Response Data: $responseData');
+        final responseJson = json.decode(responseData);
+
+        final settlementNo = responseJson['SettlementNo'];
+
+        if (settlementNo == "00") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sudah Pernah di Settlement'),
+            ),
+          );
+        } else {
+          final transactions = responseJson['transactions'][0] as List<dynamic>;
+          _currentTime = DateTime.now();
+
+          final transactionsList = transactions.cast<Map<String, dynamic>>();
+
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => PrintSettlement(
+                  title: 'Re Print Settlement',
+                  date: _currentTime.toString(),
+                  transactions: transactionsList,
+                  settlementNo: settlementNo,
+                ),
+              ),
+            );
+          });
+        }
+      } else {
+        print('Request failed with status: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Settlement request failed!'),
+          ),
+        );
+      }
+    } catch (error) {
+      print('Error: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred while sending the request.'),
+        ),
+      );
+    }
+  }
+
+  void _showHistoryDialog() {
+    TextEditingController settlementNumberController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('History'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                controller: settlementNumberController,
+                decoration: InputDecoration(
+                  hintText: 'Masukan Nomor Settlement',
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  String settlementNumber = settlementNumberController.text;
+                  rePrintSettlement(
+                      settlementNumber); // Memanggil fungsi rePrintSettlement
+                  Navigator.of(context).pop(); // Tutup dialog
+                },
+                child: Text('Re-Print Settlement'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
 
     // Membuat timer yang akan memperbarui waktu setiap detik
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
           // Perubahan state yang ingin Anda lakukan
@@ -40,17 +155,24 @@ class _SettlementScreenState extends State<SettlementScreen> {
   }
 
   Future<void> sendSettlementRequest() async {
+    final baseUrl = BaseUrl();
+    final settlementUrl = baseUrl.settlementAction();
+
     setState(() {
       isLoading = true;
     });
 
     final prefs = await SharedPreferences.getInstance();
     final userid = prefs.getString('userid') ?? '';
+
+    print(userid);
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.18.103/wartelsus/edc/POSSettlementEdc'),
-        body: {'reff_number': userid},
+        Uri.parse(settlementUrl),
+        body: {'reff_number': userid, 'settlement_no': '0'},
       );
+
+      print(response.body);
 
       setState(() {
         isLoading = false;
@@ -59,6 +181,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
       if (response.statusCode == 200) {
         // Permintaan berhasil
         final responseData = response.body;
+        // ignore: avoid_print
         print('Response Data: $responseData');
         // Parsing respons JSON
         final responseJson = json.decode(responseData);
@@ -69,7 +192,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
         if (settlementNo == "00") {
           // Jika SettlementNo adalah "00", tampilkan pesan "Sudah Pernah di Settlement"
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('Sudah Pernah di Settlement'),
             ),
           );
@@ -82,7 +205,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
           final transactionsList = transactions.cast<Map<String, dynamic>>();
 
           // Arahkan otomatis ke halaman PrintSettlement dengan mengirimkan data yang dibutuhkan
-          Future.delayed(Duration(seconds: 2), () {
+          Future.delayed(const Duration(seconds: 2), () {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => PrintSettlement(
@@ -97,20 +220,24 @@ class _SettlementScreenState extends State<SettlementScreen> {
         }
       } else {
         // Permintaan gagal
+        // ignore: avoid_print
         print('Request failed with status: ${response.statusCode}');
         // Tampilkan Snackbar dengan pesan kesalahan jika diperlukan
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Settlement request failed!'),
           ),
         );
       }
     } catch (error) {
       // Tangani kesalahan jika terjadi
+      // ignore: avoid_print
       print('Error: $error');
       // Tampilkan Snackbar dengan pesan kesalahan jika diperlukan
       ScaffoldMessenger.of(context).showSnackBar(
+        // ignore: prefer_const_constructors
         SnackBar(
+          // ignore: prefer_const_constructors
           content: Text('An error occurred while sending the request.'),
         ),
       );
@@ -122,16 +249,34 @@ class _SettlementScreenState extends State<SettlementScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColor.baseColor,
+        // ignore: prefer_const_constructors
         title: Text(
           'Settlement Submit',
-          style: TextStyle(color: AppColor.darkOrange),
+          style: const TextStyle(color: AppColor.darkOrange),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
+          icon: const Icon(Icons.home, color: AppColor.darkOrange),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => MemberListScreen(
+                members: MemberController()
+                    .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
+                currentSort: 'ASC',
+              ),
+            ));
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.history,
+              color: AppColor.darkOrange,
+            ),
+            onPressed: () {
+              _showHistoryDialog(); // Menampilkan dialog "History" saat tombol "history" ditekan
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -149,17 +294,17 @@ class _SettlementScreenState extends State<SettlementScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.access_time,
                       size: 64,
                       color: AppColor.darkOrange,
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Text(
                       _currentTime != null
                           ? '${_currentTime.hour}:${_currentTime.minute}:${_currentTime.second}'
                           : 'Loading...',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
@@ -168,7 +313,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 if (!isLoading) {
@@ -188,16 +333,16 @@ class _SettlementScreenState extends State<SettlementScreen> {
                     8.0), // Atur tinggi shadow sesuai keinginan
                 shadowColor: MaterialStateProperty.all<Color>(Colors.black),
                 minimumSize: MaterialStateProperty.all<Size>(
-                  Size(200.0,
+                  const Size(200.0,
                       50.0), // Sesuaikan ukuran sesuai keinginan (lebar x tinggi)
                 ),
               ),
               child: isLoading
-                  ? CircularProgressIndicator(
+                  ? const CircularProgressIndicator(
                       // Tampilkan loading indicator saat isLoading adalah true
                       color: AppColor.darkOrange,
                     )
-                  : Text(
+                  : const Text(
                       'Settle Now',
                       style:
                           TextStyle(fontSize: 20, color: AppColor.darkOrange),

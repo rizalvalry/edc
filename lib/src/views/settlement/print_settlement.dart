@@ -1,9 +1,13 @@
+// ignore_for_file: unused_local_variable, library_prefixes, prefer_const_constructors_in_immutables, use_key_in_widget_constructors, deprecated_member_use
+
+import 'dart:typed_data';
+
+import 'package:app_dart/src/controllers/member_controller.dart';
+import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pdfLib;
 import 'package:printing/printing.dart';
-import 'dart:convert';
 
 class PrintSettlement extends StatelessWidget {
   final String title;
@@ -23,54 +27,81 @@ class PrintSettlement extends StatelessWidget {
     double totalAmount = 0.0;
     int no = 1; // Nomor urut dimulai dari 1
 
+    final bool isRePrint = title == 'Re Print Settlement';
+
     for (var transaction in transactions) {
-      final baseAmount = double.tryParse(transaction['BASEAMOUNT'].toString()) ?? 0.0;
+      final baseAmount =
+          double.tryParse(transaction['BASEAMOUNT'].toString()) ?? 0.0;
       totalAmount += baseAmount;
 
-      transaction['NO'] = no.toString(); // Menambahkan nomor urut ke setiap transaksi
+      transaction['NO'] =
+          no.toString(); // Menambahkan nomor urut ke setiap transaksi
       no++;
     }
 
     pdf.addPage(
       pdfLib.MultiPage(
         build: (context) => [
-          pdfLib.Header(
-            level: 0,
-            text: 'Settlement Details',
+          pdfLib.Text('Anugerah Vata Abadi',
+              style: pdfLib.TextStyle(
+                  fontWeight: pdfLib.FontWeight.bold, fontSize: 25)),
+          pdfLib.Text("=================================",
+              style: pdfLib.TextStyle(fontSize: 25)),
+          pdfLib.Paragraph(
+            style: pdfLib.TextStyle(fontSize: 22),
+            text: 'SETTLEMENT #$settlementNo',
           ),
           pdfLib.Paragraph(
-            text: 'Settlement No: $settlementNo',
+            style: pdfLib.TextStyle(fontSize: 22),
+            text: 'SETTLEMENT #WARTELSUS',
           ),
-          pdfLib.Paragraph(
-            text: 'Transaction Details:',
-          ),
+          pdfLib.Text("=================================",
+              style: pdfLib.TextStyle(fontSize: 25)),
           pdfLib.Table.fromTextArray(
             border: pdfLib.TableBorder.symmetric(
-        inside: pdfLib.BorderSide.none,
-        outside: pdfLib.BorderSide.none,
-      ),
-      headerStyle: pdfLib.TextStyle(
-        fontSize: 20, // Besarkan font untuk header
-        fontWeight: pdfLib.FontWeight.bold,
-        // font: boldFont, // Gunakan font bold
-      ),
-      cellStyle: pdfLib.TextStyle(
-        fontSize: 18, // Besarkan font untuk sel
-        // font: regularFont, // Gunakan font reguler
-      ),
+              inside: pdfLib.BorderSide.none,
+              outside: pdfLib.BorderSide.none,
+            ),
+            headerStyle: pdfLib.TextStyle(
+              fontSize: 20, // Besarkan font untuk header
+              fontWeight: pdfLib.FontWeight.bold,
+              // font: boldFont, // Gunakan font bold
+            ),
+            cellStyle: const pdfLib.TextStyle(
+              fontSize: 18, // Besarkan font untuk sel
+              // font: regularFont, // Gunakan font reguler
+            ),
             data: <List<String>>[
-              <String>['No.', 'Invoice', 'Time TRX', 'Member', 'Amount'],
+              <String>['NO', 'TIME', 'TX', 'ID', 'AMOUNT'],
               for (var transaction in transactions)
                 <String>[
                   transaction['NO'],
-                  transaction['INVOICEID'].toString(),
-                  // transaction['INVOICENO'].toString(),
                   transaction['TRANSTIMESTAMP'].toString(),
+                  transaction['INVOICEID'].toString(),
                   transaction['LEVE_MEMBERID'].toString(),
                   transaction['BASEAMOUNT'].toString(),
                 ],
             ],
           ),
+          pdfLib.Paragraph(
+            style: pdfLib.TextStyle(fontSize: 22),
+            text: 'SETTLEMENT Rp. ${totalAmount.toStringAsFixed(2)}',
+          ),
+          pdfLib.Text("---------------------------------",
+              style: pdfLib.TextStyle(fontSize: 25)),
+          pdfLib.Paragraph(
+            style: pdfLib.TextStyle(fontSize: 22),
+            text: '*** SIGNATURE NOT REQUIRED ***',
+          ),
+          isRePrint
+              ? pdfLib.Paragraph(
+                  style: pdfLib.TextStyle(fontSize: 22),
+                  text: '*** CARDHOLDER COPY ***',
+                )
+              : pdfLib.Paragraph(
+                  style: pdfLib.TextStyle(fontSize: 22),
+                  text: '*** CARDHOLDER ***',
+                ),
         ],
       ),
     );
@@ -151,10 +182,23 @@ class PrintSettlement extends StatelessWidget {
     //     ],
     //   ),
     // );
+    final Uint8List pdfData = await pdf.save();
 
     await Printing.layoutPdf(onLayout: (PdfPageFormat format) async {
-      return pdf.save();
+      return pdfData; // Kembalikan data PDF yang telah disimpan
     });
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => MemberListScreen(
+          members: MemberController().fetchMembers(
+            sort: 'LEVE_MEMBERNAME',
+            dir: 'ASC',
+          ),
+          currentSort: 'ASC',
+        ),
+      ),
+    );
   }
 
   @override
@@ -166,7 +210,7 @@ class PrintSettlement extends StatelessWidget {
         title: Text(title),
         actions: [
           IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -174,29 +218,29 @@ class PrintSettlement extends StatelessWidget {
         ],
       ),
       body: Card(
-  elevation: 4,
-  child: Padding(
-    padding: EdgeInsets.all(15),
-    child: ListView.builder(
-      itemCount: transactions.length,
-      itemBuilder: (context, index) {
-        final transaction = transactions[index];
-        return ListTile(
-          title: Text('Invoice ID: ${transaction['INVOICEID']}'),
-          subtitle: Text('Transaction Time: ${transaction['TRANSTIMESTAMP']}'),
-          // trailing: ElevatedButton(
-          //   onPressed: () {
-          //     // Tambahkan logika untuk re-print di sini
-          //     _printSettlement(context);
-          //   },
-          //   child: Text('Re-Print'),
-          // ),
-        );
-      },
-    ),
-  ),
-),
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: ListView.builder(
+            itemCount: transactions.length,
+            itemBuilder: (context, index) {
+              final transaction = transactions[index];
+              return ListTile(
+                title: Text('Invoice ID: ${transaction['INVOICEID']}'),
+                subtitle:
+                    Text('Transaction Time: ${transaction['TRANSTIMESTAMP']}'),
+                // trailing: ElevatedButton(
+                //   onPressed: () {
+                //     // Tambahkan logika untuk re-print di sini
+                //     _printSettlement(context);
+                //   },
+                //   child: Text('Re-Print'),
+                // ),
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
 }
-

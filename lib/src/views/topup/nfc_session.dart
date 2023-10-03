@@ -1,9 +1,11 @@
+// ignore_for_file: unused_field, use_build_context_synchronously, curly_braces_in_flow_control_structures, unnecessary_string_interpolations
+
 import 'dart:io';
 
-import 'package:app_dart/src/config/flare_animation_widget.dart';
+import 'package:app_dart/src/controllers/member_controller.dart';
+import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
-import 'package:snackbar/snackbar.dart';
 
 Future<void> startSession({
   required BuildContext context,
@@ -43,12 +45,12 @@ class _UnavailableDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Error'),
-      content:
-          Text('NFC may not be supported or may be temporarily turned off.'),
+      title: const Text('Error'),
+      content: const Text(
+          'NFC may not be supported or may be temporarily turned off.'),
       actions: [
         TextButton(
-          child: Text('GOT IT'),
+          child: const Text('GOT IT'),
           onPressed: () => Navigator.pop(context),
         ),
       ],
@@ -57,7 +59,7 @@ class _UnavailableDialog extends StatelessWidget {
 }
 
 class _AndroidSessionDialog extends StatefulWidget {
-  _AndroidSessionDialog(this.alertMessage, this.handleTag);
+  const _AndroidSessionDialog(this.alertMessage, this.handleTag);
 
   final String alertMessage;
 
@@ -72,6 +74,7 @@ class _AndroidSessionDialogState extends State<_AndroidSessionDialog> {
 
   String? _errorMessage;
   bool _showFlareAnimation = false; // Tambahkan variabel ini
+  bool _isNFCScanning = false;
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -80,18 +83,16 @@ class _AndroidSessionDialogState extends State<_AndroidSessionDialog> {
     NfcManager.instance.startSession(
       onDiscovered: (tag) async {
         try {
+          setState(() => _isNFCScanning = true);
           final result = await widget.handleTag(tag);
           if (result == null) return;
           await NfcManager.instance.stopSession();
-          // setState(() => _alertMessage = result);
-          setState(() {
-            _alertMessage = result;
-            _showFlareAnimation =
-                true; // Tampilkan animasi saat tindakan berhasil
-          });
+          setState(() => _alertMessage = result);
         } catch (e) {
           await NfcManager.instance.stopSession().catchError((_) {/* no op */});
           setState(() => _errorMessage = '$e');
+        } finally {
+          setState(() => _isNFCScanning = false);
         }
       },
     ).catchError((e) => setState(() => _errorMessage = '$e'));
@@ -105,6 +106,11 @@ class _AndroidSessionDialogState extends State<_AndroidSessionDialog> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isNFCScanning) {
+      return Center(
+        child: CircularProgressIndicator(), // Tampilkan indikator loading
+      );
+    }
     // if (_showFlareAnimation) {
     //   return FlareAnimationWidget(
     //     scaffoldKey:
@@ -118,7 +124,7 @@ class _AndroidSessionDialogState extends State<_AndroidSessionDialog> {
         _errorMessage?.isNotEmpty == true
             ? 'Error'
             : _alertMessage?.isNotEmpty == true
-                ? 'Success'
+                ? 'NFC Finish'
                 : 'Ready to scan',
       ),
       content: Column(
@@ -142,7 +148,19 @@ class _AndroidSessionDialogState extends State<_AndroidSessionDialog> {
                     ? 'OK'
                     : 'CANCEL',
           ),
-          onPressed: () => {Navigator.of(context).pop()},
+          onPressed: () => {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => MemberListScreen(
+                  members: MemberController().fetchMembers(
+                    sort: 'LEVE_MEMBERNAME',
+                    dir: 'ASC',
+                  ),
+                  currentSort: 'ASC',
+                ),
+              ),
+            ),
+          },
         ),
       ],
     );

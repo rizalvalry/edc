@@ -1,5 +1,5 @@
 class MemberDetail {
-  final int memberId;
+  final String memberId;
   final String regId;
   final String regName;
   final String memberName;
@@ -27,7 +27,7 @@ class MemberDetail {
 
   factory MemberDetail.fromJson(Map<String, dynamic> json) {
     return MemberDetail(
-      memberId: json['Id'] != null ? int.parse(json['Id']) : 0,
+      memberId: json['Id'] ?? 'No DATA',
       regId: json['RegId'] ?? 'No DATA',
       regName: json['RegName'] ?? 'No DATA',
       memberName: json['MemberName'] ?? 'No DATA',

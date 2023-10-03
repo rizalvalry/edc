@@ -1,36 +1,40 @@
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_declarations, prefer_const_declarations, duplicate_ignore, use_build_context_synchronously, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class PostRequestTest extends StatelessWidget {
   void _sendPostRequest(BuildContext context) async {
-    final String apiUrl = 'http://192.168.18.103/wartelsus/members/crud_members';
+    final String apiUrl =
+        'http://192.168.18.103/wartelsus/members/crud_members';
 
-        print(apiUrl);
- 
+    // ignore: avoid_print
+    print(apiUrl);
 
     try {
       final response = await http.post(
         Uri.parse(apiUrl),
         body: {
-        "Id": "0",
-        "Active": "true",
-        "RegistrationId": "858",
-        "RegistrationName": "yuga bin hasan",
-        "MemberName": "yua",
-        "Area": "blok p",
-        "Room": "blok g",
-        "Case": "begal",
-        "BranchId": "6",
-        "Userid": "30"
+          "Id": "0",
+          "Active": "true",
+          "RegistrationId": "858",
+          "RegistrationName": "yuga bin hasan",
+          "MemberName": "yua",
+          "Area": "blok p",
+          "Room": "blok g",
+          "Case": "begal",
+          "BranchId": "6",
+          "Userid": "30"
         },
       );
 
-        print(response);
-
+      // ignore: avoid_print
+      print(response);
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
+        // ignore: avoid_print
         print(jsonResponse);
         final success = jsonResponse['success'];
 
@@ -45,7 +49,6 @@ class PostRequestTest extends StatelessWidget {
               duration: Duration(seconds: 3),
             ),
           );
-
         } else {
           final message = success['message'];
 
@@ -55,10 +58,8 @@ class PostRequestTest extends StatelessWidget {
               duration: Duration(seconds: 3),
             ),
           );
-
         }
-      } else {
-      }
+      } else {}
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
