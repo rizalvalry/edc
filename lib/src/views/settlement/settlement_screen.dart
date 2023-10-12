@@ -222,7 +222,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
         // Permintaan gagal
         // ignore: avoid_print
         print('Request failed with status: ${response.statusCode}');
-        // Tampilkan Snackbar dengan pesan kesalahan jika diperlukan
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Settlement request failed!'),
@@ -230,14 +230,10 @@ class _SettlementScreenState extends State<SettlementScreen> {
         );
       }
     } catch (error) {
-      // Tangani kesalahan jika terjadi
-      // ignore: avoid_print
       print('Error: $error');
-      // Tampilkan Snackbar dengan pesan kesalahan jika diperlukan
+
       ScaffoldMessenger.of(context).showSnackBar(
-        // ignore: prefer_const_constructors
         SnackBar(
-          // ignore: prefer_const_constructors
           content: Text('An error occurred while sending the request.'),
         ),
       );
@@ -273,7 +269,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
               color: AppColor.darkOrange,
             ),
             onPressed: () {
-              _showHistoryDialog(); // Menampilkan dialog "History" saat tombol "history" ditekan
+              _showHistoryDialog();
             },
           ),
         ],
@@ -285,8 +281,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
             Card(
               color: Colors.transparent,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(12.0), // Mengatur sudut melengkung
+                borderRadius: BorderRadius.circular(12.0),
               ),
               shadowColor: AppColor.lightGrey,
               elevation: 5,
@@ -317,29 +312,25 @@ class _SettlementScreenState extends State<SettlementScreen> {
             ElevatedButton(
               onPressed: () {
                 if (!isLoading) {
-                  sendSettlementRequest(); // Panggil fungsi untuk HIT POST
+                  sendSettlementRequest();
                 }
               },
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(AppColor
-                    .baseColor), // Ganti dengan warna latar belakang yang Anda inginkan
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(AppColor.baseColor),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        10.0), // Atur radius sesuai keinginan
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
-                elevation: MaterialStateProperty.all<double>(
-                    8.0), // Atur tinggi shadow sesuai keinginan
+                elevation: MaterialStateProperty.all<double>(8.0),
                 shadowColor: MaterialStateProperty.all<Color>(Colors.black),
                 minimumSize: MaterialStateProperty.all<Size>(
-                  const Size(200.0,
-                      50.0), // Sesuaikan ukuran sesuai keinginan (lebar x tinggi)
+                  const Size(200.0, 50.0),
                 ),
               ),
               child: isLoading
                   ? const CircularProgressIndicator(
-                      // Tampilkan loading indicator saat isLoading adalah true
                       color: AppColor.darkOrange,
                     )
                   : const Text(

@@ -275,9 +275,9 @@ class PrintInvoice extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 16), // Spasi antara teks dan tombol
+                SizedBox(height: 16),
 
-                SizedBox(height: 16), // Spasi antara teks dan tombol
+                SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -297,9 +297,9 @@ class PrintInvoice extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 16), // Spasi antara teks dan tombol
+                SizedBox(height: 16),
 
-                SizedBox(height: 24), // Spasi di bawah tombol
+                SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -312,14 +312,13 @@ class PrintInvoice extends StatelessWidget {
                                 scaffoldKey: scaffoldKey,
                                 alertMessage: 'Success',
                                 actionType: 'resetpin',
-                                previousContext:
-                                    context, // Pass previous context here
-                              ); // Gantilah dengan halaman sebelumnya yang ingin Anda refresh
+                                previousContext: context,
+                              );
                             },
                           ),
                         );
                       },
-                      icon: Icon(Icons.done), // Ikon cetak (misalnya, printer)
+                      icon: Icon(Icons.done),
                       label: Text('Selesai',
                           style: TextStyle(color: AppColor.darkOrange)),
                       style:
@@ -327,10 +326,9 @@ class PrintInvoice extends StatelessWidget {
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Tambahkan logika untuk mencetak ulang invoice di sini
                         _printInvoice(context);
                       },
-                      icon: Icon(Icons.print), // Ikon cetak (misalnya, printer)
+                      icon: Icon(Icons.print),
                       label: Text('Re-Print'),
                       style: ElevatedButton.styleFrom(primary: Colors.orange),
                     ),

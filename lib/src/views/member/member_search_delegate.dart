@@ -61,7 +61,6 @@ class MemberSearchDelegateCustom extends SearchDelegate<List<Member>> {
             itemBuilder: (context, index) {
               return InkWell(
                 onTap: () async {
-                  // Arahkan pengguna ke halaman detail terlebih dahulu
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -70,7 +69,7 @@ class MemberSearchDelegateCustom extends SearchDelegate<List<Member>> {
                       ),
                     ),
                   );
-                  // Menutup keyboard setelah pengguna sampai di halaman detail
+
                   FocusScope.of(context).unfocus();
                 },
                 child: ListTile(
@@ -124,9 +123,8 @@ class MemberSearchDelegateCustom extends SearchDelegate<List<Member>> {
                 title: Text(suggestions[index].memberName),
                 subtitle: Text(suggestions[index].registrationName),
                 onTap: () {
-                  // Menutup keyboard
                   focusNode.unfocus();
-                  // Arahkan pengguna ke halaman detail
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(

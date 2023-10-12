@@ -34,8 +34,7 @@ class PrintSettlement extends StatelessWidget {
           double.tryParse(transaction['BASEAMOUNT'].toString()) ?? 0.0;
       totalAmount += baseAmount;
 
-      transaction['NO'] =
-          no.toString(); // Menambahkan nomor urut ke setiap transaksi
+      transaction['NO'] = no.toString();
       no++;
     }
 
@@ -63,13 +62,12 @@ class PrintSettlement extends StatelessWidget {
               outside: pdfLib.BorderSide.none,
             ),
             headerStyle: pdfLib.TextStyle(
-              fontSize: 20, // Besarkan font untuk header
+              fontSize: 20,
               fontWeight: pdfLib.FontWeight.bold,
               // font: boldFont, // Gunakan font bold
             ),
             cellStyle: const pdfLib.TextStyle(
-              fontSize: 18, // Besarkan font untuk sel
-              // font: regularFont, // Gunakan font reguler
+              fontSize: 18,
             ),
             data: <List<String>>[
               <String>['NO', 'TIME', 'TX', 'ID', 'AMOUNT'],

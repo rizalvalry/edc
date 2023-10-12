@@ -16,7 +16,7 @@ class TopUpMemberScreen extends StatefulWidget {
   TopUpMemberScreen(
       {required this.memberId,
       required this.kodeCabang,
-      required this.memberName}); // Tambahkan kodeCabang ke konstruktor
+      required this.memberName});
 
   @override
   _TopUpMemberScreenState createState() => _TopUpMemberScreenState();
@@ -128,20 +128,18 @@ class _TopUpMemberScreenState extends State<TopUpMemberScreen> {
                     );
                   },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(AppColor
-                        .baseColor), // Ganti dengan warna latar belakang yang Anda inginkan
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(AppColor.baseColor),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            10.0), // Atur radius sesuai keinginan
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
                     ),
                     elevation: MaterialStateProperty.all<double>(
                         8.0), // Atur tinggi shadow sesuai keinginan
                     shadowColor: MaterialStateProperty.all<Color>(Colors.black),
                     minimumSize: MaterialStateProperty.all<Size>(
-                      const Size(200.0,
-                          50.0), // Sesuaikan ukuran sesuai keinginan (lebar x tinggi)
+                      const Size(200.0, 50.0),
                     ),
                   ),
                   child: const Text(

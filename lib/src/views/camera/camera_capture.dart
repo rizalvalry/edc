@@ -154,14 +154,12 @@ class _ImageUploadState extends State<ImageUpload> {
       ),
       body: Stack(
         children: <Widget>[
-          // Tambahkan Container dengan gambar latar belakang penuh
           Container(
             width: screenSize.width,
             height: screenSize.height,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    "assets/images/blue-wallpaper.png"), // Ganti dengan path gambar yang sesuai
+                image: AssetImage("assets/images/blue-wallpaper.png"),
                 fit: BoxFit.cover,
               ),
             ),
@@ -335,11 +333,11 @@ class _ImageUploadState extends State<ImageUpload> {
   //                   },
   //                   style: ButtonStyle(
   //                     backgroundColor: MaterialStateProperty.all<Color>(Colors
-  //                         .red), // Ganti dengan warna latar belakang yang Anda inginkan
+  //                         .red),
   //                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
   //                       RoundedRectangleBorder(
   //                         borderRadius: BorderRadius.circular(
-  //                             10.0), // Atur radius sesuai keinginan
+  //                             10.0),
   //                       ),
   //                     ),
   //                     elevation: MaterialStateProperty.all<double>(
@@ -348,7 +346,7 @@ class _ImageUploadState extends State<ImageUpload> {
   //                         MaterialStateProperty.all<Color>(Colors.black),
   //                     minimumSize: MaterialStateProperty.all<Size>(
   //                       const Size(200.0,
-  //                           50.0), // Sesuaikan ukuran sesuai keinginan (lebar x tinggi)
+  //                           50.0),
   //                     ),
   //                   ),
   //                   icon: Icon(Icons.skip_next),

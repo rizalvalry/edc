@@ -216,7 +216,6 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
                 color: AppColor.darkOrange,
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.only(right: 15.0),
               child: InkWell(
@@ -231,14 +230,11 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
                                 memberId: widget.memberId,
                                 actionType: actionType),
                           ),
-                          // Tambahan penyedia lainnya jika diperlukan.
                         ],
                         child: TagReadPage(
-                            kodeCabang: kodeCabang, // Lemparkan kodeCabang
-                            memberId: widget.memberId, // Lemparkan memberId
-                            actionType: actionType
-                            // Anda bisa mengisi uid sesuai kebutuhan Anda
-                            ),
+                            kodeCabang: kodeCabang,
+                            memberId: widget.memberId,
+                            actionType: actionType),
                       ),
                     ),
                   );
@@ -248,7 +244,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
                   color: AppColor.darkOrange,
                 ), //Reset Pin
               ),
-            ), // Ikon yang ditambahkan di sebelah touch_app
+            ),
           ],
         ),
       ],
@@ -291,24 +287,22 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
         ElevatedButton(
           onPressed: () {
             if (!isLoading) {
-              _updateMemberData(); // Panggil fungsi untuk melakukan POST ke URL
+              _updateMemberData();
             }
           },
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(AppColor
-                .baseColor), // Ganti dengan warna latar belakang yang Anda inginkan
+            backgroundColor:
+                MaterialStateProperty.all<Color>(AppColor.baseColor),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(10.0), // Atur radius sesuai keinginan
+                borderRadius: BorderRadius.circular(10.0),
               ),
             ),
             elevation: MaterialStateProperty.all<double>(
                 8.0), // Atur tinggi shadow sesuai keinginan
             shadowColor: MaterialStateProperty.all<Color>(Colors.black),
             minimumSize: MaterialStateProperty.all<Size>(
-              const Size(200.0,
-                  50.0), // Sesuaikan ukuran sesuai keinginan (lebar x tinggi)
+              const Size(200.0, 50.0),
             ),
           ),
           child: isLoading

@@ -62,9 +62,8 @@ class TagReadModel with ChangeNotifier {
   Map<String, dynamic>? additionalData;
   String? responseOut;
 
-  String responseTopUpFirst =
-      ""; // Inisialisasi responseTopUpFirst dengan string kosong
-  String responseTopUp = ""; // Inisialisasi responseTopUp dengan string kosong
+  String responseTopUpFirst = "";
+  String responseTopUp = "";
 
   Future<String?> handleTag(NfcTag tag, BuildContext context) async {
     this.tag = tag;
@@ -105,12 +104,11 @@ class TagReadModel with ChangeNotifier {
           // print(response.body);
 
           if (response.statusCode == 200) {
-            responseOut = "Reset Pin"; // Atur nilai di sini
+            responseOut = "Reset Pin";
             print('POST request berhasil dengan ID : $memberId');
             print('POST request berhasil dengan Kode Cabang : $kodeCabang');
           } else {
-            responseOut =
-                "Gagal Scan / Gangguan Jaringan"; // Atur nilai di sini
+            responseOut = "Gagal Scan / Gangguan Jaringan";
             print('Gagal melakukan POST request');
           }
         } else if (actionType == "topup") {
@@ -174,7 +172,6 @@ class TagReadModel with ChangeNotifier {
             final prefs = await SharedPreferences.getInstance();
             prefs.setString('uidDecimal', uidDecimal.toString());
 
-            // Navigasi ke halaman print_invoice.dart dengan memberikan parameter
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => PrintInvoice(
@@ -191,12 +188,11 @@ class TagReadModel with ChangeNotifier {
               ),
             );
           } else {
-            responseOut =
-                "Gagal Scan / Gangguan Jaringan"; // Atur nilai di sini
+            responseOut = "Gagal Scan / Gangguan Jaringan";
             print('Gagal melakukan POST request');
           }
 
-          responseOut = "Top Up"; // Atur nilai di sini
+          responseOut = "Top Up";
           responseTopUp = responseTopUpFirst;
         }
       }
@@ -266,30 +262,26 @@ class TagReadPage extends StatelessWidget {
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment
-                .center, // Mengatur penempatan horizontal ke tengah
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               ElevatedButton(
                 onPressed: () => startSession(
                   context: context,
                   handleTag: (tag) =>
                       Provider.of<TagReadModel>(context, listen: false)
-                          .handleTag(tag,
-                              context), // Memasukkan context ke dalam handleTag
+                          .handleTag(tag, context),
                 ),
                 style: ElevatedButton.styleFrom(
-                  primary: AppColor.baseColor, // Warna latar belakang tombol
-                  onPrimary: Colors.white, // Warna teks pada tombol
+                  primary: AppColor.baseColor,
+                  onPrimary: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0), // Bentuk tombol
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
-                  padding: const EdgeInsets.all(16.0), // Padding tombol
+                  padding: const EdgeInsets.all(16.0),
                 ),
                 child: const Text(
                   "RESET PIN MEMBER",
-                  style: TextStyle(
-                      fontSize: 18.0,
-                      color: AppColor.darkOrange), // Gaya teks pada tombol
+                  style: TextStyle(fontSize: 18.0, color: AppColor.darkOrange),
                 ),
               ),
             ],

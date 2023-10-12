@@ -218,12 +218,11 @@ class MemberAdd extends StatelessWidget {
                 submitForm(context);
               },
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(AppColor
-                    .baseColor), // Ganti dengan warna latar belakang yang Anda inginkan
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(AppColor.baseColor),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        10.0), // Atur radius sesuai keinginan
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
                 elevation: MaterialStateProperty.all<double>(
@@ -231,8 +230,7 @@ class MemberAdd extends StatelessWidget {
                 shadowColor: MaterialStateProperty.all<Color>(Colors.black),
                 minimumSize: MaterialStateProperty.all<Size>(
                   // ignore: prefer_const_constructors
-                  Size(200.0,
-                      50.0), // Sesuaikan ukuran sesuai keinginan (lebar x tinggi)
+                  Size(200.0, 50.0),
                 ),
               ),
               child: const Text('Submit'),

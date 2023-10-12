@@ -14,8 +14,8 @@ class LogTopUpPage extends StatefulWidget {
 class _LogTopUpPageState extends State<LogTopUpPage> {
   String rcValue = '';
   String responseMessageValue = '';
-  String dateTime = ''; // Perbarui dari datetime menjadi dateTime
-  String trxCode = ''; // Perbarui dari trx_code menjadi trxCode
+  String dateTime = '';
+  String trxCode = '';
   String? uidDecimal;
   String memberName = '';
   String amountValue = '';
@@ -96,22 +96,21 @@ class _LogTopUpPageState extends State<LogTopUpPage> {
       ),
       body: Center(
         child: Container(
-          width: double.infinity, // Lebar container mengisi seluruh layar
-          margin: EdgeInsets.all(16.0), // Margin eksternal container
-          padding: EdgeInsets.all(16.0), // Padding internal container
+          width: double.infinity,
+          margin: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/ramp-banner-background-sm.png'),
-              fit: BoxFit.cover, // Sesuaikan ukuran gambar dengan container
+              fit: BoxFit.cover,
             ),
-            // color: Colors.white, // Warna latar belakang container
-            borderRadius: BorderRadius.circular(20.0), // Radius sudut 20%
+            borderRadius: BorderRadius.circular(20.0),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.5), // Warna shadow
-                spreadRadius: 5, // Penyebaran shadow
-                blurRadius: 7, // Ketajaman shadow
-                offset: Offset(0, 3), // Posisi shadow (x, y)
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: Offset(0, 3),
               ),
             ],
           ),
@@ -127,8 +126,6 @@ class _LogTopUpPageState extends State<LogTopUpPage> {
                 style: TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 20),
-
-              // ... tambahkan lebih banyak Text Widgets sesuai kebutuhan
               ElevatedButton(
                 onPressed: () {
                   // Navigasi ke halaman PrintInvoice dengan parameter-parameter yang sesuai
@@ -149,15 +146,14 @@ class _LogTopUpPageState extends State<LogTopUpPage> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: AppColor.darkOrange, // Warna latar belakang tombol
+                  primary: AppColor.darkOrange,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        10.0), // Atur radius sesuai keinginan
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
                   minimumSize: Size(
                     200.0,
                     50.0,
-                  ), // Sesuaikan ukuran sesuai keinginan (lebar x tinggi)
+                  ),
                 ),
                 child: Text('PRINT LAST TOPUP',
                     style: TextStyle(color: AppColor.baseColor)),
