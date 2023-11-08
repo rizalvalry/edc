@@ -91,24 +91,35 @@ class MemberListScreen extends StatelessWidget {
           }
         },
       ),
-      floatingActionButton: SizedBox(
-        height: 50,
-        child: FittedBox(
-          child: FloatingActionButton(
-            child: const Icon(
-              Icons.add,
-              color: Colors.black,
+      floatingActionButton: Container(
+        width: 56.0,
+        height: 56.0,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orangeAccent, // Warna shadow
+              offset:
+                  Offset(0, 2), // Geser shadow secara horizontal dan vertikal
+              blurRadius: 4.0, // Besarnya blur shadow
+              spreadRadius: 1.0, // Seberapa tersebar shadow
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MemberAdd(),
-                ),
-              );
-            },
-            backgroundColor: AppColor.darkOrange,
+          ],
+        ),
+        child: FloatingActionButton(
+          child: Icon(
+            Icons.add,
+            color: Colors.black,
           ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MemberAdd(),
+              ),
+            );
+          },
+          backgroundColor: AppColor.darkOrange,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

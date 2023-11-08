@@ -238,7 +238,9 @@ class _ImageUploadState extends State<ImageUpload> {
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
-                        isUploadComplete ? Colors.green : Colors.red),
+                        isUploadComplete
+                            ? AppColor.baseColor
+                            : AppColor.dangerColor),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
@@ -250,8 +252,16 @@ class _ImageUploadState extends State<ImageUpload> {
                       const Size(200.0, 50.0),
                     ),
                   ),
-                  icon: Icon(Icons.done),
-                  label: Text(isUploadComplete ? "Selesai" : "Lewati"),
+                  icon: isLoading
+                      ? const CircularProgressIndicator(
+                          // Tampilkan loading indicator saat isLoading adalah true
+                          color: AppColor.darkOrange,
+                        )
+                      : Icon(Icons.done_all),
+                  label: Text(
+                    isUploadComplete ? "Selesai" : "Lewati",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -259,104 +269,4 @@ class _ImageUploadState extends State<ImageUpload> {
       ),
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       backgroundColor: AppColor.baseColor,
-  //       // ignore: prefer_const_constructors
-  //       title: Text("Upload Image to Server"),
-  //     ),
-  //     body: Container(
-  //       height: 300,
-  //       alignment: Alignment.center,
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: <Widget>[
-  //           Container(
-  //             child: isImageSelected &&
-  //                     (uploadimage != null || capturedImage != null)
-  //                 ? SizedBox(
-  //                     height: 150,
-  //                     child: Image.file(uploadimage ?? capturedImage!),
-  //                   )
-  //                 : Container(),
-  //           ),
-  //           Container(
-  //             // ignore: unnecessary_null_comparison
-  //             child: uploadimage == null || isImageSelected == null
-  //                 ? Container()
-  //                 : ElevatedButton.icon(
-  //                     onPressed: () {
-  //                       uploadImage(uploadimage!, widget.memberId);
-  //                     },
-  //                     // ignore: prefer_const_constructors
-  //                     icon: Icon(Icons.file_upload),
-  //                     // ignore: prefer_const_constructors
-  //                     label: Text("UPLOAD IMAGE"),
-  //                   ),
-  //           ),
-  //           Container(
-  //             child: ElevatedButton.icon(
-  //               onPressed: () {
-  //                 chooseImage();
-  //               },
-  //               icon: const Icon(Icons.image),
-  //               label: const Text("Choose Image"),
-  //             ),
-  //           ),
-  //           Container(
-  //             child: ElevatedButton.icon(
-  //               onPressed: () {
-  //                 captureImageAndUpload();
-  //               },
-  //               icon: const Icon(Icons.camera_alt),
-  //               label: const Text("Capture IMAGE"),
-  //             ),
-  //           ),
-  //           if (widget.showSkipButton)
-  //             Expanded(
-  //               child: Align(
-  //                 alignment: Alignment.bottomCenter,
-  //                 child: ElevatedButton.icon(
-  //                   onPressed: () {
-  //                     Navigator.of(context).pushReplacement(
-  //                       MaterialPageRoute(
-  //                         builder: (context) => MemberListScreen(
-  //                           members: _controller.fetchMembers(
-  //                               sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
-  //                           currentSort: 'ASC',
-  //                         ),
-  //                       ),
-  //                     );
-  //                   },
-  //                   style: ButtonStyle(
-  //                     backgroundColor: MaterialStateProperty.all<Color>(Colors
-  //                         .red),
-  //                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-  //                       RoundedRectangleBorder(
-  //                         borderRadius: BorderRadius.circular(
-  //                             10.0),
-  //                       ),
-  //                     ),
-  //                     elevation: MaterialStateProperty.all<double>(
-  //                         8.0), // Atur tinggi shadow sesuai keinginan
-  //                     shadowColor:
-  //                         MaterialStateProperty.all<Color>(Colors.black),
-  //                     minimumSize: MaterialStateProperty.all<Size>(
-  //                       const Size(200.0,
-  //                           50.0),
-  //                     ),
-  //                   ),
-  //                   icon: Icon(Icons.skip_next),
-  //                   label: Text("Lewati"),
-  //                 ),
-  //               ),
-  //             ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 }

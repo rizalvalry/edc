@@ -1,4 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:http/http.dart' as http;
+
+class NoNetworkException implements Exception {
+  final String message = 'No network connection.';
+}
 
 class BaseUrl {
   static String? serverIpAddress;
@@ -7,7 +13,21 @@ class BaseUrl {
     final prefs = await SharedPreferences.getInstance();
     serverIpAddress = prefs.getString('serveripaddress') ?? '';
 
-    // print(serverIpAddress);
+    // Pengecekan koneksi internet
+    final isNetworkConnected = await isNetworkAvailable();
+
+    if (!isNetworkConnected) {
+      throw NoNetworkException(); // Buat pengecualian jika tidak ada koneksi
+    }
+  }
+
+  static Future<bool> isNetworkAvailable() async {
+    try {
+      final response = await http.head(Uri.parse("https://www.google.com"));
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 
 // // URL UTAMA/INDUK
@@ -16,7 +36,6 @@ class BaseUrl {
 
   static const String getNotifApiBaseUrl =
       'http://192.168.18.103/wartelsus/edc/notifapi';
-
 // // END URL UTAMA
 
   static Future<String> getServerIpAddress() async {
@@ -79,5 +98,10 @@ class BaseUrl {
   String getImeiSecondAuth(String imei) {
     final serverIpAddress = BaseUrl.serverIpAddress;
     return 'http://$serverIpAddress/edc/GETuseridbyimei?phoneimei=$imei';
+  }
+
+  String postUpdateUID() {
+    final serverIpAddress = BaseUrl.serverIpAddress;
+    return 'http://$serverIpAddress/edc/updateProperti';
   }
 }

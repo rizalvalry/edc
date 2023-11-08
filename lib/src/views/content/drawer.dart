@@ -6,11 +6,14 @@ import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:app_dart/src/views/topup/log_topup.dart';
+import 'package:app_dart/src/views/topup/topup_member.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pdfLib;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
+import 'package:app_dart/src/views/auth/nfc_session.dart';
+import 'package:app_dart/src/views/auth/tag.dart';
 
 String getGreeting() {
   final currentTime = DateTime.now();
@@ -28,6 +31,8 @@ String getGreeting() {
 }
 
 class CustomDrawer extends StatelessWidget {
+  String actionType = 'uid';
+
   String getImagePathBasedOnTime() {
     final currentTime = DateTime.now();
     final formattedTime = DateFormat('HH:mm').format(currentTime);
@@ -98,7 +103,7 @@ class CustomDrawer extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               decoration: BoxDecoration(
                 color: AppColor
-                    .darkOrange, // Ganti warna latar belakang sesuai keinginan Anda
+                    .lightGrey, // Ganti warna latar belakang sesuai keinginan Anda
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.3),
@@ -138,7 +143,72 @@ class CustomDrawer extends StatelessWidget {
                 ],
               ),
             ),
-          )
+          ),
+          InkWell(
+            onTap: () async {
+              startSession(
+                context: context,
+                handleTag: (tag) async {
+                  final tagReadModel = TagReadModel(
+                    actionType: actionType,
+                  );
+                  return await tagReadModel.handleTag(tag, context);
+                },
+              );
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColor
+                    .lightGrey, // Ganti warna latar belakang sesuai keinginan Anda
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 2,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 15,
+                    backgroundImage: AssetImage('assets/images/activated.png'),
+                    // Ganti dengan gambar profil yang sesuai
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Aktifkan UID', // Judul "Aktifkan UID"
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Aktifkan UID Anda', // Baris "LOG Top Up"
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColor
+                                .baseColor, // Ganti warna sesuai desain "LOG Top Up"
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: AppColor.baseColor,
+                  ),
+                ],
+              ),
+            ),
+          ),
 
           // ListTile(
           //   title: Text('Item 2'),

@@ -9,33 +9,33 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MemberController {
   Future<List<Member>> fetchMembers(
       {String sort = 'LEVE_REGISTRATIONNAME', String dir = 'ASC'}) async {
-    await BaseUrl.initialize(); // Inisialisasi BaseUrl dengan serverIpAddress
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String kodecabang = prefs.getString('kodecabang') ?? '';
-    // final String memberListUrl = prefs.getString('kodecabang') ?? '';
+    try {
+      await BaseUrl.initialize();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String kodecabang = prefs.getString('kodecabang') ?? '';
+      final String memberListUrl = await BaseUrl.getMemberListUrl();
 
-    final String memberListUrl = await BaseUrl.getMemberListUrl();
+      final Uri uri = Uri.parse(
+        '$memberListUrl'
+        '?_dc=1694400095666'
+        '&branchID=$kodecabang'
+        '&filter_status=true'
+        '&start=0'
+        '&sort=$sort'
+        '&dir=$dir',
+      );
 
-    final Uri uri = Uri.parse(
-      '$memberListUrl'
-      '?_dc=1694400095666'
-      '&branchID=$kodecabang'
-      '&filter_status=true'
-      // '&filter_textSearch='
-      // '&page=1'
-      '&start=0'
-      // '&limit=1'
-      '&sort=$sort'
-      '&dir=$dir',
-    );
+      final response = await http.get(uri);
 
-    final response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonResponse = json.decode(response.body)['results'];
-      return jsonResponse.map((data) => Member.fromJson(data)).toList();
-    } else {
-      throw Exception('Failed to load members');
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonResponse =
+            json.decode(response.body)['results'];
+        return jsonResponse.map((data) => Member.fromJson(data)).toList();
+      } else {
+        return []; // Mengembalikan daftar kosong dalam bentuk Future
+      }
+    } catch (e) {
+      return []; // Mengembalikan daftar kosong dalam bentuk Future pada kesalahan
     }
   }
 

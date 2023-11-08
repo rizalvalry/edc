@@ -5,7 +5,9 @@ import 'dart:typed_data';
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/config/my_utils.dart';
+import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/auth/ndef_record.dart';
+import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:app_dart/src/views/topup/nfc_session.dart';
 import 'package:app_dart/src/views/topup/print_invoice.dart';
 
@@ -62,6 +64,7 @@ class TagReadModel with ChangeNotifier {
   Map<String, dynamic>? additionalData;
   String? responseOut;
 
+  String? printMessage;
   String responseTopUpFirst = "";
   String responseTopUp = "";
 
@@ -101,14 +104,22 @@ class TagReadModel with ChangeNotifier {
             },
           );
 
-          // print(response.body);
+          final data = json.decode(response.body);
+          final rcreset = data['rc'];
+          final responMessage = data['responsemesage'];
+
+          print(rcreset);
 
           if (response.statusCode == 200) {
             responseOut = "Reset Pin";
             print('POST request berhasil dengan ID : $memberId');
             print('POST request berhasil dengan Kode Cabang : $kodeCabang');
+            printMessage = responMessage;
+          } else if (rcreset != '00') {
+            printMessage = responMessage;
           } else {
             responseOut = "Gagal Scan / Gangguan Jaringan";
+            printMessage = responseOut;
             print('Gagal melakukan POST request');
           }
         } else if (actionType == "topup") {
@@ -134,6 +145,12 @@ class TagReadModel with ChangeNotifier {
             },
           );
 
+          final data = json.decode(response.body);
+          final rctopup = data['rc'];
+          final responMessage = data['responsemesage'];
+
+          print(rctopup);
+          print(responMessage);
           print(actionType);
           print(response);
 
@@ -172,21 +189,26 @@ class TagReadModel with ChangeNotifier {
             final prefs = await SharedPreferences.getInstance();
             prefs.setString('uidDecimal', uidDecimal.toString());
 
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => PrintInvoice(
-                  title: 'Print Preview',
-                  date: datetime,
-                  txCode: trx_code,
-                  cardNumber: uidDecimal.toString(),
-                  memberName: member,
-                  amount: amountValue.toString(),
-                  idmember: idmember,
-                  balance: balanceValue.toString(),
-                  closebalance: closebalanceValue.toString(),
+            if (rctopup != '00') {
+              responseTopUpFirst = responMessage;
+              showResponseAlertDialog(context, responseTopUpFirst);
+            } else {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => PrintInvoice(
+                    title: 'Print Preview',
+                    date: datetime,
+                    txCode: trx_code,
+                    cardNumber: uidDecimal.toString(),
+                    memberName: member,
+                    amount: amountValue.toString(),
+                    idmember: idmember,
+                    balance: balanceValue.toString(),
+                    closebalance: closebalanceValue.toString(),
+                  ),
                 ),
-              ),
-            );
+              );
+            }
           } else {
             responseOut = "Gagal Scan / Gangguan Jaringan";
             print('Gagal melakukan POST request');
@@ -203,9 +225,41 @@ class TagReadModel with ChangeNotifier {
     if (responseOut == "Top Up") {
       return '${responseTopUp}';
     } else if (responseOut == "Reset Pin") {
-      return '$responseOut Berhasil';
+      return '$printMessage';
     }
   }
+}
+
+void showResponseAlertDialog(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: AppColor.dangerColor,
+        contentTextStyle: TextStyle(color: Colors.white),
+        title: Text('Response Top Up'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => MemberListScreen(
+                    members: MemberController().fetchMembers(
+                      sort: 'LEVE_MEMBERNAME',
+                      dir: 'ASC',
+                    ),
+                    currentSort: 'ASC',
+                  ),
+                ),
+              );
+            },
+            child: Text('Tutup'),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class TagReadPage extends StatelessWidget {

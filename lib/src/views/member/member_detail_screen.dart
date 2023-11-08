@@ -282,8 +282,10 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
           },
         ),
 
-        CustomTextField(label: 'Branch', controller: branchController),
-        CustomTextField(label: 'Balance', controller: balanceController),
+        CustomTextField(
+            label: 'Branch', controller: branchController, readOnly: true),
+        CustomTextField(
+            label: 'Balance', controller: balanceController, readOnly: true),
         ElevatedButton(
           onPressed: () {
             if (!isLoading) {
@@ -383,9 +385,13 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
 class CustomTextField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
+  final bool readOnly;
 
   const CustomTextField(
-      {super.key, required this.label, required this.controller});
+      {super.key,
+      required this.label,
+      required this.controller,
+      this.readOnly = false});
 
   @override
   Widget build(BuildContext context) {
@@ -411,6 +417,7 @@ class CustomTextField extends StatelessWidget {
               focusedBorder: myFocusBorder(),
               hintText: 'Enter $label',
             ),
+            readOnly: readOnly,
           ),
           const SizedBox(height: 16.0),
         ],

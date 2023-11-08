@@ -10,6 +10,7 @@ class AppColor {
   static const lightGrey = Color(0xFFE5E6E8);
 
   static const baseColor = Color.fromARGB(255, 81, 112, 223);
+  static const dangerColor = Color.fromARGB(255, 230, 51, 51);
 }
 
 class AppConfiguration {

@@ -12,16 +12,16 @@ class LogTopUpPage extends StatefulWidget {
 }
 
 class _LogTopUpPageState extends State<LogTopUpPage> {
-  String rcValue = '';
-  String responseMessageValue = '';
-  String dateTime = '';
-  String trxCode = '';
+  String? rcValue = '';
+  String? responseMessageValue = '';
+  String? dateTime = '';
+  String? trxCode = '';
   String? uidDecimal;
-  String memberName = '';
-  String amountValue = '';
-  String idmember = '';
-  String balanceValue = '';
-  String closebalanceValue = '';
+  String? memberName = '';
+  String? amountValue = '';
+  String? idmember = '';
+  String? balanceValue = '';
+  String? closebalanceValue = '';
 
   @override
   void initState() {
@@ -117,34 +117,36 @@ class _LogTopUpPageState extends State<LogTopUpPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Text(
+              //   'RC Value: $rcValue',
+              //   style: TextStyle(fontSize: 18),
+              // ),
               Text(
-                'RC Value: $rcValue',
-                style: TextStyle(fontSize: 18),
-              ),
-              Text(
-                'Response Message: $responseMessageValue',
+                '$responseMessageValue',
                 style: TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  // Navigasi ke halaman PrintInvoice dengan parameter-parameter yang sesuai
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => PrintInvoice(
-                        title: 'Print Preview',
-                        date: dateTime.toString(),
-                        txCode: trxCode.toString(),
-                        cardNumber: uidDecimal.toString(),
-                        memberName: memberName.toString(),
-                        amount: amountValue.toString(),
-                        idmember: idmember.toString(),
-                        balance: balanceValue.toString(),
-                        closebalance: closebalanceValue.toString(),
-                      ),
-                    ),
-                  );
-                },
+                onPressed: rcValue == '00'
+                    ? () {
+                        // Navigasi ke halaman PrintInvoice
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => PrintInvoice(
+                              title: 'Print Preview',
+                              date: dateTime.toString(),
+                              txCode: trxCode.toString(),
+                              cardNumber: uidDecimal.toString(),
+                              memberName: memberName.toString(),
+                              amount: amountValue.toString(),
+                              idmember: idmember.toString(),
+                              balance: balanceValue.toString(),
+                              closebalance: closebalanceValue.toString(),
+                            ),
+                          ),
+                        );
+                      }
+                    : null,
                 style: ElevatedButton.styleFrom(
                   primary: AppColor.darkOrange,
                   shape: RoundedRectangleBorder(
@@ -157,7 +159,7 @@ class _LogTopUpPageState extends State<LogTopUpPage> {
                 ),
                 child: Text('PRINT LAST TOPUP',
                     style: TextStyle(color: AppColor.baseColor)),
-              ),
+              )
             ],
           ),
         ),
