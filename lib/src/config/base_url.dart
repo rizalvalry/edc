@@ -32,10 +32,10 @@ class BaseUrl {
 
 // // URL UTAMA/INDUK
   static const String deviceAuthorizedUrl =
-      'http://192.168.18.103/wartelsus/edc/device_authorized?';
+      'https://wartelsus.mitrakitajaya.com/edc/device_authorized?';
 
   static const String getNotifApiBaseUrl =
-      'http://192.168.18.103/wartelsus/edc/notifapi';
+      'https://wartelsus.mitrakitajaya.com/edc/notifapi';
 // // END URL UTAMA
 
   static Future<String> getServerIpAddress() async {

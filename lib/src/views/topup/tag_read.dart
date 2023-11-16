@@ -314,49 +314,59 @@ class TagReadPage extends StatelessWidget {
           actions: const <Widget>[],
         ),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              ElevatedButton(
-                onPressed: () => startSession(
-                  context: context,
-                  handleTag: (tag) =>
-                      Provider.of<TagReadModel>(context, listen: false)
-                          .handleTag(tag, context),
-                ),
-                style: ElevatedButton.styleFrom(
-                  primary: AppColor.baseColor,
-                  onPrimary: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  padding: const EdgeInsets.all(16.0),
-                ),
-                child: const Text(
-                  "RESET PIN MEMBER",
-                  style: TextStyle(fontSize: 18.0, color: AppColor.darkOrange),
-                ),
+          child: Container(
+            width: double.infinity,
+            // Tinggi setengah dari layar
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                    'assets/images/reset-pin.png'), // Ganti dengan path gambar latar belakang Anda
+                fit: BoxFit
+                    .cover, // Sesuaikan sesuai kebutuhan (cover, contain, dll.)
               ),
-            ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white,
+                        offset: Offset(0, 0),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () => startSession(
+                      context: context,
+                      handleTag: (tag) =>
+                          Provider.of<TagReadModel>(context, listen: false)
+                              .handleTag(tag, context),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      primary: AppColor.baseColor,
+                      onPrimary: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      padding: const EdgeInsets.all(16.0),
+                      elevation: 8.0,
+                    ),
+                    child: Container(
+                      child: const Text(
+                        "RESET PIN MEMBER",
+                        style: TextStyle(
+                            fontSize: 18.0, color: AppColor.darkOrange),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-
-          // FormSection(
-          //   children: [
-          //     FormRow(
-          //       title: Text('Mulai Scanning untuk ($memberId)',
-          //           style: TextStyle(
-          //               color: Theme.of(context).colorScheme.primary)),
-          // onTap: () => startSession(
-          //   context: context,
-          //   handleTag: (tag) =>
-          //       Provider.of<TagReadModel>(context, listen: false)
-          //           .handleTag(tag,
-          //               context), // Memasukkan context ke dalam handleTag
-          // ),
-          //     ),
-          //   ],
-          // ),
         ));
   }
 }

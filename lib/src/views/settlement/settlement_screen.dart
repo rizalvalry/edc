@@ -104,14 +104,42 @@ class _SettlementScreenState extends State<SettlementScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('History'),
+          backgroundColor: AppColor.baseColor,
+          contentTextStyle: TextStyle(color: Colors.white),
+          title: Text('History', style: TextStyle(color: Colors.white)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              TextField(
+              TextFormField(
+                style: const TextStyle(color: Colors.white),
                 controller: settlementNumberController,
                 decoration: InputDecoration(
                   hintText: 'Masukan Nomor Settlement',
+                  hintStyle: TextStyle(
+                      color:
+                          Colors.white), // Atur warna teks hint menjadi putih
+                  fillColor: Colors.white,
+                  focusColor: Colors.white,
+                  prefixIconColor: Colors.white,
+                  labelStyle: TextStyle(
+                      color:
+                          Colors.white), // Atur warna teks label menjadi putih
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Colors
+                            .white), // Atur warna border ketika field tidak aktif menjadi putih
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Colors
+                            .white), // Atur warna border ketika field aktif menjadi putih
+                  ),
+
+                  // Atur style untuk teks yang dimasukkan/diketik
+                  // Jika Anda ingin teks yang dimasukkan menjadi putih, atur warna teksnya menjadi putih
+                  // Anda juga dapat mengatur properti lain sesuai kebutuhan, seperti fontSize, fontWeight, dsb.
+                  // Contoh:
+                  // style: TextStyle(color: Colors.white),
                 ),
               ),
               SizedBox(height: 20),
@@ -274,73 +302,84 @@ class _SettlementScreenState extends State<SettlementScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Card(
-              color: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              shadowColor: AppColor.lightGrey,
-              elevation: 5,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.access_time,
-                      size: 64,
-                      color: AppColor.darkOrange,
+      body: Stack(
+        children: [
+          Image.asset(
+            'assets/images/settlement.png', // Ganti dengan path gambar latar belakang Anda
+            fit: BoxFit
+                .cover, // Sesuaikan sesuai kebutuhan (cover, contain, dll.)
+            width: double.infinity,
+            height: double.infinity,
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Card(
+                  color: Colors.white10,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  shadowColor: AppColor.baseColor,
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.access_time,
+                          size: 64,
+                          color: AppColor.darkOrange,
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          _currentTime != null
+                              ? '${_currentTime.hour}:${_currentTime.minute}:${_currentTime.second}'
+                              : 'Loading...',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      _currentTime != null
-                          ? '${_currentTime.hour}:${_currentTime.minute}:${_currentTime.second}'
-                          : 'Loading...',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                if (!isLoading) {
-                  sendSettlementRequest();
-                }
-              },
-              style: ButtonStyle(
-                backgroundColor:
-                    MaterialStateProperty.all<Color>(AppColor.baseColor),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
-                elevation: MaterialStateProperty.all<double>(8.0),
-                shadowColor: MaterialStateProperty.all<Color>(Colors.black),
-                minimumSize: MaterialStateProperty.all<Size>(
-                  const Size(200.0, 50.0),
-                ),
-              ),
-              child: isLoading
-                  ? const CircularProgressIndicator(
-                      color: AppColor.darkOrange,
-                    )
-                  : const Text(
-                      'Settle Now',
-                      style:
-                          TextStyle(fontSize: 20, color: AppColor.darkOrange),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    if (!isLoading) {
+                      sendSettlementRequest();
+                    }
+                  },
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(AppColor.baseColor),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
                     ),
+                    elevation: MaterialStateProperty.all<double>(8.0),
+                    shadowColor: MaterialStateProperty.all<Color>(Colors.black),
+                    minimumSize: MaterialStateProperty.all<Size>(
+                      const Size(200.0, 50.0),
+                    ),
+                  ),
+                  child: isLoading
+                      ? const CircularProgressIndicator(
+                          color: AppColor.darkOrange,
+                        )
+                      : const Text(
+                          'Settle Now',
+                          style: TextStyle(
+                              fontSize: 20, color: AppColor.darkOrange),
+                        ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -212,6 +212,23 @@ class _ImageUploadState extends State<ImageUpload> {
                     onPressed: () {
                       captureImageAndUpload();
                     },
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(AppColor.baseColor),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      elevation: MaterialStateProperty.all<double>(
+                          8.0), // Atur tinggi shadow sesuai keinginan
+                      shadowColor:
+                          MaterialStateProperty.all<Color>(Colors.black),
+                      minimumSize: MaterialStateProperty.all<Size>(
+                        // ignore: prefer_const_constructors
+                        Size(200.0, 50.0),
+                      ),
+                    ),
                     icon: const Icon(Icons.camera_alt),
                     label: const Text("Capture IMAGE"),
                   ),

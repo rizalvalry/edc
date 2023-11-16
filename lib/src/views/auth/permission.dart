@@ -21,10 +21,12 @@ class Permission extends StatefulWidget {
 class _PermissionState extends State<Permission> {
   late Future<String> _deviceResponse;
   Timer? _autoRefreshTimer;
+  bool _isMounted = false;
 
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
     _deviceResponse = fetchData();
     _autoRefreshData(); // Memulai auto refresh data
   }
@@ -35,19 +37,25 @@ class _PermissionState extends State<Permission> {
     });
   }
 
-  void refreshData() {
+  void refreshData() async {
     setState(() {
       _deviceResponse = fetchData();
     });
-    _deviceResponse.then((response) {
-      if (response == 'Perangkat diizinkan' &&
-          widget.responseMessage != 'Perangkat diizinkan') {
+
+    try {
+      String response = await _deviceResponse;
+
+      if (response == 'Perangkat diizinkan' && _isMounted) {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) =>
               MyApp(rc: '00', responseMessage: 'Perangkat diizinkan'),
         ));
       }
-    });
+    } catch (e) {
+      // Tangani kesalahan jika terjadi
+      print('Error during refreshData: $e');
+    }
+
     debugPrint('Manual data refresh initiated');
   }
 
@@ -55,6 +63,7 @@ class _PermissionState extends State<Permission> {
   void dispose() {
     super.dispose();
     _autoRefreshTimer?.cancel(); // Batalkan timer saat widget di-dispose
+    _isMounted = false;
   }
 
   Future<String> fetchData() async {
@@ -118,8 +127,12 @@ class _PermissionState extends State<Permission> {
 
           // Navigasi ke halaman MyApp
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) =>
-                MyApp(rc: '00', responseMessage: 'Perangkat diizinkan'),
+            builder: (context) {
+              if (mounted) {
+                return MyApp(rc: '00', responseMessage: 'Perangkat diizinkan');
+              }
+              return Container(); // Atau widget lain yang sesuai
+            },
           ));
         }
 
@@ -152,45 +165,39 @@ class CenteredTextWithBackgroundImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(50),
-      child: Stack(
-        children: <Widget>[
-          Image.asset(
-            'assets/images/unauth.png',
-            fit: BoxFit.cover,
-          ),
-          Center(
-            child: Card(
-              elevation: 5.0,
-              color: Colors.black.withOpacity(0.7),
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 20,
-                  runSpacing: 20,
-                  children: [
-                    Text(
-                      responseMessage,
-                      style: TextStyle(
-                        fontSize: 24,
-                        color: Color.fromARGB(255, 255, 51, 0),
-                        fontWeight: FontWeight.bold,
-                      ),
+    return Stack(
+      children: <Widget>[
+        Image.asset(
+          'assets/images/unauth.png',
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        ),
+        Center(
+          child: Card(
+            elevation: 5.0,
+            color: Colors.black.withOpacity(0.7),
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 20,
+                runSpacing: 20,
+                children: [
+                  Text(
+                    responseMessage,
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Color.fromARGB(255, 255, 51, 0),
+                      fontWeight: FontWeight.bold,
                     ),
-                    // ElevatedButton(
-                    //   onPressed:
-                    //       sendOneSignal, // Panggil refreshData saat tombol ditekan
-                    //   child: Text('Refresh'),
-                    // ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
