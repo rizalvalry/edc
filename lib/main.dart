@@ -4,6 +4,7 @@ import 'dart:convert';
 
 // import 'package:app_dart/src/config/app_theme.dart';
 // import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/imei.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
@@ -31,6 +32,8 @@ Future<void> main() async {
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
+      runApp(SplashScreen());
+
       final data = json.decode(response.body);
       final results = data['results'];
 
@@ -58,7 +61,9 @@ Future<void> main() async {
 
         // Inisialisasi BaseUrl dengan serverIpAddress
 
-        runApp(MyApp(rc: rc, responseMessage: responseMessage));
+        Future.delayed(Duration(seconds: 2), () {
+          runApp(MyApp(rc: rc, responseMessage: responseMessage));
+        });
 
         if (rc == '02') {
           AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
@@ -153,5 +158,32 @@ class MyApp extends StatelessWidget {
     }
 
     return Container();
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return MaterialApp(
+      home: Scaffold(
+        body: Container(
+          constraints: BoxConstraints.expand(),
+          color: AppColor.baseColor,
+          child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                child: Image.asset(
+                  'assets/images/ic_launcher.png',
+                  width: screenWidth,
+                  height: screenHeight,
+                  fit: BoxFit.cover,
+                ),
+              ),
+        ),
+      ),
+      debugShowCheckedModeBanner: false,
+    );
   }
 }

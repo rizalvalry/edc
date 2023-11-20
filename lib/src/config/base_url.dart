@@ -1,6 +1,5 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NoNetworkException implements Exception {
   final String message = 'No network connection.';
@@ -23,7 +22,8 @@ class BaseUrl {
 
   static Future<bool> isNetworkAvailable() async {
     try {
-      final response = await http.head(Uri.parse("https://www.google.com"));
+      final response =
+          await http.head(Uri.parse("https://wartelsus.mitrakitajaya.com/"));
       return response.statusCode == 200;
     } catch (e) {
       return false;
