@@ -1,25 +1,27 @@
 // ignore_for_file: unused_import, unused_local_variable, avoid_print, non_constant_identifier_names, use_build_context_synchronously, use_key_in_widget_constructors, deprecated_member_use, must_be_immutable, body_might_complete_normally_nullable
 
-import 'package:app_dart/src/controllers/member_controller.dart';
-import 'package:app_dart/src/views/member/member_list_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:nfc_manager/nfc_manager.dart';
-import 'package:nfc_manager/platform_tags.dart';
-import 'package:path/path.dart';
-import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/config/my_utils.dart';
+import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/auth/ndef_record.dart';
 import 'package:app_dart/src/views/auth/nfc_session.dart';
+import 'package:app_dart/src/views/error/network_error.dart';
+import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:device_info/device_info.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:nfc_manager/nfc_manager.dart';
+import 'package:nfc_manager/platform_tags.dart';
+import 'package:path/path.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:async';
-import 'dart:convert';
 
 void main() {
   DateTime now = DateTime.now();
@@ -231,6 +233,10 @@ class TagReadModel with ChangeNotifier {
                 },
               );
             }
+          } else {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => NetworkErrorPage(),
+            ));
           }
         }
       }

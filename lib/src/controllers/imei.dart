@@ -1,7 +1,11 @@
 import 'dart:io';
+
 import 'package:app_dart/src/config/base_url.dart';
+import 'package:app_dart/src/views/error/network_error.dart';
 import 'package:device_info/device_info.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // validasi device from ZERO
@@ -37,6 +41,15 @@ Future<String> buildDeviceAuthorizedURL() async {
   return url;
 }
 
+void handleNetworkError(BuildContext context) {
+  // Navigasi ke NetworkErrorPage
+  Navigator.of(context).pushReplacement(
+    MaterialPageRoute(
+      builder: (context) => NetworkErrorPage(),
+    ),
+  );
+}
+
 // push notifications
 void sendRequestToLocalhostAPI(String imei, String model, String rc) async {
   try {
@@ -53,9 +66,11 @@ void sendRequestToLocalhostAPI(String imei, String model, String rc) async {
     } else {
       // ignore: avoid_print
       print('Gagal mengambil data dari API Notifikasi');
+      handleNetworkError(context as BuildContext);
     }
   } catch (e) {
     // ignore: avoid_print
+    handleNetworkError(context as BuildContext);
     print('Terjadi kesalahan: $e');
   }
 }

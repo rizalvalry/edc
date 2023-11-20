@@ -1,6 +1,7 @@
 // ignore_for_file: unused_import
 
 import 'dart:convert';
+
 // import 'package:app_dart/src/config/app_theme.dart';
 // import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
@@ -11,12 +12,13 @@ import 'package:app_dart/src/views/error/network_error.dart';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:path/path.dart';
-import 'src/views/member/member_list_screen.dart';
 // import 'src/views/member_search_delegate.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+// import 'package:path/path.dart';
+import 'src/views/member/member_list_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

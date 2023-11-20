@@ -1,17 +1,17 @@
 // ignore_for_file: use_key_in_widget_constructors, duplicate_ignore, use_build_context_synchronously
 
+import 'dart:convert';
+
 // ignore_for_file: use_key_in_widget_constructors
 
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
-import 'package:app_dart/src/models/member.dart';
 import 'package:app_dart/src/views/camera/camera_capture.dart';
-import 'package:app_dart/src/views/member/member_list_screen.dart';
+import 'package:app_dart/src/views/error/network_error.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class MemberAdd extends StatelessWidget {
   final TextEditingController registrationIdController =
@@ -144,7 +144,11 @@ class MemberAdd extends StatelessWidget {
             ),
           );
         }
-      } else {}
+      } else {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => NetworkErrorPage(),
+        ));
+      }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         // ignore: prefer_const_constructors
