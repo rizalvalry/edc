@@ -26,6 +26,7 @@ class MemberAdd extends StatelessWidget {
   final MemberController _controller = MemberController();
   String branchid = '';
   String userId = '';
+  bool isSubmitting = false;
 
   // Future<UserData> _getSharedPreferencesData() async {
   //   // final prefs = await SharedPreferences.getInstance();
@@ -45,6 +46,7 @@ class MemberAdd extends StatelessWidget {
   // }
 
   Future<void> submitForm(BuildContext context) async {
+    isSubmitting = true;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     branchid = prefs.getString('branchid') ?? '';
     userId = prefs.getString('userid') ?? '';
@@ -91,6 +93,8 @@ class MemberAdd extends StatelessWidget {
     print(postData);
 
     try {
+      buildShowDialog(context);
+
       final response = await http.post(
         Uri.parse(apiUrl),
         body: postData,
@@ -106,23 +110,28 @@ class MemberAdd extends StatelessWidget {
           final id = success['Id'];
           final message = success['message'];
 
-          // Tampilkan Snackbar sukses
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('ID: $id, Message: $message'),
-              // ignore: prefer_const_constructors
-              duration: Duration(seconds: 3),
-            ),
-          );
+          // Tutup loading dialog setelah delay 1 detik
+          Future.delayed(Duration(seconds: 1), () {
+            Navigator.of(context).pop();
 
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ImageUpload(
-                memberId: id.toString(),
-                showSkipButton: true,
-              ), // Mengirim nilai "Id"
-            ),
-          );
+            // Tampilkan Snackbar sukses
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('ID: $id, Message: $message'),
+                duration: Duration(seconds: 3),
+              ),
+            );
+
+            // Navigasi ke halaman berikutnya
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ImageUpload(
+                  memberId: id.toString(),
+                  showSkipButton: true,
+                ),
+              ),
+            );
+          });
 
           // Navigator.of(context).pushReplacement(
           //   MaterialPageRoute(
@@ -136,13 +145,16 @@ class MemberAdd extends StatelessWidget {
         } else {
           final message = success['message'];
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error Message: $message'),
-              // ignore: prefer_const_constructors
-              duration: Duration(seconds: 3),
-            ),
-          );
+          Future.delayed(Duration(seconds: 1), () {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error Message: $message'),
+                // ignore: prefer_const_constructors
+                duration: Duration(seconds: 3),
+              ),
+            );
+          });
         }
       } else {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -150,15 +162,22 @@ class MemberAdd extends StatelessWidget {
         ));
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        // ignore: prefer_const_constructors
-        SnackBar(
+      Future.delayed(Duration(seconds: 1), () {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
           // ignore: prefer_const_constructors
-          content: Text('Terjadi kesalahan selama permintaan HTTP.'),
-          // ignore: prefer_const_constructors
-          duration: Duration(seconds: 3),
-        ),
-      );
+          SnackBar(
+            // ignore: prefer_const_constructors
+            content: Text('Terjadi kesalahan selama permintaan HTTP.'),
+            // ignore: prefer_const_constructors
+            duration: Duration(seconds: 3),
+          ),
+        );
+      });
+    } finally {
+      // Setelah selesai, kembalikan variabel isSubmitting menjadi false
+      isSubmitting = false;
+      Navigator.of(context).pop();
     }
   }
 
@@ -244,4 +263,15 @@ class MemberAdd extends StatelessWidget {
       ),
     );
   }
+}
+
+buildShowDialog(BuildContext context) {
+  return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      });
 }

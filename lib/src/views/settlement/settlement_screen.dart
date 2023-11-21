@@ -1,15 +1,16 @@
 // ignore_for_file: unnecessary_null_comparison, library_private_types_in_public_api, use_build_context_synchronously
 
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:app_dart/src/views/settlement/print_settlement.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 // ignore: use_key_in_widget_constructors
 class SettlementScreen extends StatefulWidget {
@@ -57,7 +58,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
         if (settlementNo == "00") {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Sudah Pernah di Settlement'),
+              content: Text('Data Tidak Ditemukan!'),
             ),
           );
         } else {
@@ -221,7 +222,8 @@ class _SettlementScreenState extends State<SettlementScreen> {
           // Jika SettlementNo adalah "00", tampilkan pesan "Sudah Pernah di Settlement"
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Sudah Pernah di Settlement'),
+              content:
+                  Text('Tidak Ada History atau Sudah Pernah di Settlement'),
             ),
           );
         } else {

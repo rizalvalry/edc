@@ -2,13 +2,14 @@
 
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 class ImageUpload extends StatefulWidget {
   final String memberId;
@@ -171,6 +172,11 @@ class _ImageUploadState extends State<ImageUpload> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(
+                        20.0), // Sesuaikan dengan nilai yang diinginkan
+                    // Optional: Anda dapat menambahkan properti lain seperti warna background
+                  ),
                   child: isImageSelected &&
                           (uploadimage != null || capturedImage != null)
                       ? SizedBox(
@@ -179,7 +185,10 @@ class _ImageUploadState extends State<ImageUpload> {
                         )
                       : Container(),
                 ),
+
                 Container(
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(10.0)),
                   // ignore: unnecessary_null_comparison
                   child: uploadimage == null || isImageSelected == null
                       ? Container()
@@ -207,30 +216,63 @@ class _ImageUploadState extends State<ImageUpload> {
                 //     label: const Text("Choose Image"),
                 //   ),
                 // ),
-                Container(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      captureImageAndUpload();
-                    },
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(AppColor.baseColor),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Container(
+                    width: screenSize.width / 2,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (!isLoading) {
+                            captureImageAndUpload();
+                          }
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              AppColor.baseColor),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          elevation: MaterialStateProperty.all<double>(
+                              8.0), // Atur tinggi shadow sesuai keinginan
+                          shadowColor:
+                              MaterialStateProperty.all<Color>(Colors.black),
+                          minimumSize: MaterialStateProperty.all<Size>(
+                            // ignore: prefer_const_constructors
+                            Size(200.0, 50.0),
+                          ),
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Opacity(
+                              opacity: isLoading ? 0.0 : 1.0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.camera_alt),
+                                  SizedBox(
+                                      width: 5), // Jarak antara ikon dan teks
+                                  Text("Capture IMAGE"),
+                                ],
+                              ),
+                            ),
+                            if (isLoading)
+                              SizedBox(
+                                width: 25,
+                                height: 25,
+                                child: CircularProgressIndicator(
+                                  color: AppColor.darkOrange,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      elevation: MaterialStateProperty.all<double>(
-                          8.0), // Atur tinggi shadow sesuai keinginan
-                      shadowColor:
-                          MaterialStateProperty.all<Color>(Colors.black),
-                      minimumSize: MaterialStateProperty.all<Size>(
-                        // ignore: prefer_const_constructors
-                        Size(200.0, 50.0),
-                      ),
                     ),
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text("Capture IMAGE"),
                   ),
                 ),
               ],
@@ -275,10 +317,18 @@ class _ImageUploadState extends State<ImageUpload> {
                           color: AppColor.darkOrange,
                         )
                       : Icon(Icons.done_all),
-                  label: Text(
-                    isUploadComplete ? "Selesai" : "Lewati",
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  label: isLoading
+                      ? Opacity(
+                          opacity: 0.5,
+                          child: const Text(
+                            '',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        )
+                      : Text(
+                          isUploadComplete ? "Selesai" : "Lewati",
+                          style: TextStyle(color: Colors.white),
+                        ),
                 ),
               ),
             ),
