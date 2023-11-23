@@ -34,6 +34,7 @@ class BaseUrl {
   static const String deviceAuthorizedUrl =
       'https://wartelsus.mitrakitajaya.com/edc/device_authorized?';
 
+// oneSignal
   static const String getNotifApiBaseUrl =
       'https://wartelsus.mitrakitajaya.com/edc/notifapi';
 // // END URL UTAMA
