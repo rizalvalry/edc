@@ -80,9 +80,13 @@ class _TopUpMemberScreenState extends State<TopUpMemberScreen> {
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(
-                      'assets/images/topup-images.png'), // Ganti dengan path gambar sesuai kebutuhan
-                  fit: BoxFit.cover, // Atur cara gambar mengisi area
+                  image: AssetImage('assets/images/topup-images.png'),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(
+                        0.2), // Sesuaikan tingkat keburaman di sini
+                    BlendMode.dstATop,
+                  ),
                 ),
               ),
               child: Padding(

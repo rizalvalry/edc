@@ -1,29 +1,21 @@
 // ignore_for_file: unused_local_variable, library_prefixes, prefer_const_constructors_in_immutables, use_key_in_widget_constructors, deprecated_member_use
 
-import 'dart:typed_data';
-
 import 'package:app_dart/src/config/app_color.dart';
-import 'package:app_dart/src/controllers/member_controller.dart';
-import 'package:app_dart/src/views/member/member_list_screen.dart';
-import 'package:app_dart/src/views/topup/log_topup.dart';
-import 'package:app_dart/src/views/topup/topup_member.dart';
-import 'package:flutter/material.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pdfLib;
-import 'package:printing/printing.dart';
-import 'package:intl/intl.dart';
 import 'package:app_dart/src/views/auth/nfc_session.dart';
 import 'package:app_dart/src/views/auth/tag.dart';
+import 'package:app_dart/src/views/topup/log_topup.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 String getGreeting() {
   final currentTime = DateTime.now();
   final hour = currentTime.hour;
 
-  if (hour >= 0 && hour < 9) {
+  if (hour >= 0 && hour < 10) {
     return 'Selamat Pagi';
-  } else if (hour >= 9 && hour < 12) {
+  } else if (hour >= 10 && hour < 15) {
     return 'Selamat Siang';
-  } else if (hour >= 12 && hour < 17) {
+  } else if (hour >= 15 && hour < 18) {
     return 'Selamat Sore';
   } else {
     return 'Selamat Malam';
@@ -66,10 +58,10 @@ class CustomDrawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'PT. AVA ABADI',
+                    'PT. Anugerah Vata Abadi',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 15,
+                      fontSize: 12,
                     ),
                   ),
                   SizedBox(height: 10),

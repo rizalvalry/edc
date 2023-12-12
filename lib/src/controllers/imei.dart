@@ -31,6 +31,7 @@ Future<String> buildDeviceAuthorizedURL() async {
     api = iosInfo.systemVersion;
   }
 
+  print('IMEI NYA : $phoneImei');
   String url = '${BaseUrl.deviceAuthorizedUrl}'
       'phoneimei=$phoneImei&'
       'device=$device&'

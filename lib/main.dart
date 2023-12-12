@@ -65,7 +65,7 @@ Future<void> main() async {
           runApp(MyApp(rc: rc, responseMessage: responseMessage));
         });
 
-        if (rc == '02') {
+        if (rc == '02' || rc == '01') {
           AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
 
           String imei = androidInfo.brand;
@@ -139,7 +139,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (rc == '02') {
+    if (rc == '02' || rc == '01') {
       // Perangkat belum terdaftar
       return UnAuthorizedApp(
         responseMessage: responseMessage,
@@ -173,14 +173,14 @@ class SplashScreen extends StatelessWidget {
           constraints: BoxConstraints.expand(),
           color: AppColor.baseColor,
           child: ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                child: Image.asset(
-                  'assets/images/ic_launcher.png',
-                  width: screenWidth,
-                  height: screenHeight,
-                  fit: BoxFit.cover,
-                ),
-              ),
+            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+            child: Image.asset(
+              'assets/images/ic_launcher.png',
+              width: screenWidth,
+              height: screenHeight,
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
       ),
       debugShowCheckedModeBanner: false,

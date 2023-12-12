@@ -2,29 +2,41 @@
 
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/views/content/drawer.dart';
+import 'package:app_dart/src/views/error/network_error.dart';
 import 'package:app_dart/src/views/member/member_add.dart';
 import 'package:app_dart/src/views/member/member_detail_screen.dart';
 import 'package:app_dart/src/views/member/member_search_delegate.dart';
 import 'package:app_dart/src/views/settlement/settlement_screen.dart';
+import 'package:azlistview/azlistview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../models/member.dart';
 import '../../controllers/member_controller.dart';
-
-import 'package:alphabet_scroll_view/alphabet_scroll_view.dart';
-import 'package:azlistview/azlistview.dart';
-import 'package:flutter/foundation.dart';
+import '../../models/member.dart';
 
 class MemberListScreen extends StatelessWidget {
   final MemberController _controller = MemberController();
   Future<List<Member>> members;
   final String currentSort;
 
-  MemberListScreen({
-    required this.members,
-    required this.currentSort,
-  });
+  MemberListScreen(
+      {required this.members, required this.currentSort, this.onRefresh});
+
+  static Future<void> _defaultOnRefresh(BuildContext context) async {
+    final newData = await MemberController()
+        .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC');
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MemberListScreen(
+          members: Future.value(newData),
+          currentSort: 'ASC',
+        ),
+      ),
+    );
+  }
+
+  final Future<void> Function(BuildContext)? onRefresh;
 
   void showMemberSearch(BuildContext context) {
     showSearch(
@@ -71,25 +83,29 @@ class MemberListScreen extends StatelessWidget {
           width: MediaQuery.of(context).size.width * 0.6,
           child: CustomDrawer()),
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.5,
-      body: FutureBuilder<List<Member>>(
-        future: members,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            final memberList = snapshot.data ?? [];
-            return AlphabeticScrollPage(
-              memberList: memberList.map((member) {
-                final title = member.memberName;
-                final memberId = member.memberId;
-                final tag = title.isNotEmpty ? title[0].toUpperCase() : 'N/A';
-                return azItem(title: title, tag: tag, memberId: memberId);
-              }).toList(),
-            );
-          }
-        },
+      body: RefreshIndicator(
+        onRefresh: () async =>
+            onRefresh?.call(context) ?? _defaultOnRefresh(context),
+        child: FutureBuilder<List<Member>>(
+          future: members,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return NetworkErrorPage(); // Tampilkan NetworkErrorPage dengan onRefresh yang sesuai
+            } else {
+              final memberList = snapshot.data ?? [];
+              return AlphabeticScrollPage(
+                memberList: memberList.map((member) {
+                  final title = member.memberName;
+                  final memberId = member.memberId;
+                  final tag = title.isNotEmpty ? title[0].toUpperCase() : 'N/A';
+                  return azItem(title: title, tag: tag, memberId: memberId);
+                }).toList(),
+              );
+            }
+          },
+        ),
       ),
       floatingActionButton: Container(
         width: 56.0,

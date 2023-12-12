@@ -1,4 +1,3 @@
-import 'package:app_dart/src/config/app_color.dart';
 import 'package:flutter/material.dart';
 
 class NetworkErrorPage extends StatelessWidget {

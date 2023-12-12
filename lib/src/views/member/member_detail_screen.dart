@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
@@ -13,8 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-
 import 'package:toggle_switch/toggle_switch.dart';
 
 class MemberDetailScreen extends StatefulWidget {
@@ -259,13 +259,13 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
             color: Colors.blue,
           ),
         ),
-        CustomTextField(label: 'Reg ID', controller: regIdController),
+        CustomTextField(label: 'ID Registrasi', controller: regIdController),
         CustomTextField(
-            label: 'Registrasi Nama', controller: regNameController),
+            label: 'Nama Registrasi', controller: regNameController),
         CustomTextField(
-            label: 'Nama Anggota', controller: memberNameController),
+            label: 'Nama Keanggotaan', controller: memberNameController),
         CustomTextField(label: 'Area', controller: areaController),
-        CustomTextField(label: 'Room', controller: roomController),
+        CustomTextField(label: 'Kamar', controller: roomController),
         CustomTextField(label: 'Perkara', controller: perkaraController),
         // CustomTextField(label: 'Pin', controller: pinController),
         // CustomTextField(label: 'Status', controller: activeController),
@@ -283,9 +283,9 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
         ),
 
         CustomTextField(
-            label: 'Branch', controller: branchController, readOnly: true),
+            label: 'Cabang', controller: branchController, readOnly: true),
         CustomTextField(
-            label: 'Balance', controller: balanceController, readOnly: true),
+            label: 'Saldo', controller: balanceController, readOnly: true),
         ElevatedButton(
           onPressed: () {
             if (!isLoading) {

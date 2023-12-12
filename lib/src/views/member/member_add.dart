@@ -206,17 +206,17 @@ class MemberAdd extends StatelessWidget {
           TextFormField(
             controller: registrationIdController,
             // ignore: prefer_const_constructors
-            decoration: InputDecoration(labelText: 'Registration ID'),
+            decoration: InputDecoration(labelText: 'ID Registrasi'),
           ),
           TextFormField(
             controller: registrationNameController,
             // ignore: prefer_const_constructors
-            decoration: InputDecoration(labelText: 'Registration Name'),
+            decoration: InputDecoration(labelText: 'Nama Registrasi'),
           ),
           TextFormField(
             controller: memberNameController,
             // ignore: prefer_const_constructors
-            decoration: InputDecoration(labelText: 'Member Name'),
+            decoration: InputDecoration(labelText: 'Nama Keanggotaan'),
           ),
           TextFormField(
             controller: areaController,
@@ -226,12 +226,12 @@ class MemberAdd extends StatelessWidget {
           TextFormField(
             controller: roomController,
             // ignore: prefer_const_constructors
-            decoration: InputDecoration(labelText: 'Room'),
+            decoration: InputDecoration(labelText: 'Kamar'),
           ),
           TextFormField(
             controller: caseController,
             // ignore: prefer_const_constructors
-            decoration: InputDecoration(labelText: 'Case'),
+            decoration: InputDecoration(labelText: 'Perkara'),
           ),
           Padding(
             // ignore: prefer_const_constructors
