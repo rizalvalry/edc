@@ -66,6 +66,7 @@ class TagReadModel with ChangeNotifier {
   String? responseOut;
 
   String reponseUid = "";
+  bool isUidActivated = false;
 
   Future<String?> handleTag(NfcTag tag, BuildContext context) async {
     this.tag = tag;
@@ -117,6 +118,8 @@ class TagReadModel with ChangeNotifier {
             final message = data['message'];
             print(message);
             if (success == true) {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setBool('isUidActivated', true);
               // Respons sesuai dengan yang diharapkan
               showDialog(
                 context: context,
