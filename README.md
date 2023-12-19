@@ -27,3 +27,14 @@ samples, guidance on mobile development, and a full API reference.
 8. NFC Card Validations
 9. Log TOP UP
 10. Print Receipts
+
+
+#### New Update
+New Update :
+1. card validation
+2. refresh indicator
+3. device information
+4. Push Notification change UID
+5. UI Friendly implements
+6. Improving Material Design
+7. Language
