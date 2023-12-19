@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/config/app_text.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/member/member_list_screen.dart';
@@ -106,6 +107,10 @@ class _SettlementScreenState extends State<SettlementScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: AppColor.baseColor,
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(8.0), // Sesuaikan radius sesuai keinginan
+          ),
           contentTextStyle: TextStyle(color: Colors.white),
           title: Text('History', style: TextStyle(color: Colors.white)),
           content: Column(
@@ -151,7 +156,25 @@ class _SettlementScreenState extends State<SettlementScreen> {
                       settlementNumber); // Memanggil fungsi rePrintSettlement
                   Navigator.of(context).pop(); // Tutup dialog
                 },
-                child: Text('Re-Print Settlement'),
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(AppColor.dangerColor),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  elevation: MaterialStateProperty.all<double>(
+                      8.0), // Atur tinggi shadow sesuai keinginan
+                  shadowColor: MaterialStateProperty.all<Color>(Colors.black),
+                  minimumSize: MaterialStateProperty.all<Size>(
+                    const Size(230.0, 50.0),
+                  ),
+                ),
+                child: Text(
+                  'Re-Print Settlement',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -222,8 +245,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
           // Jika SettlementNo adalah "00", tampilkan pesan "Sudah Pernah di Settlement"
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content:
-                  Text('Tidak Ada History atau Sudah Pernah di Settlement'),
+              content: Text('Sudah Pernah di Settlement'),
             ),
           );
         } else {
@@ -276,7 +298,7 @@ class _SettlementScreenState extends State<SettlementScreen> {
       appBar: AppBar(
         backgroundColor: AppColor.baseColor,
         // ignore: prefer_const_constructors
-        title: Text(
+        title: AppText(
           'Settlement Submit',
           style: const TextStyle(color: AppColor.darkOrange),
         ),

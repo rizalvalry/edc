@@ -8,12 +8,14 @@ import 'dart:typed_data';
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/config/my_utils.dart';
+import 'package:app_dart/src/controllers/imei.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/auth/ndef_record.dart';
 import 'package:app_dart/src/views/auth/nfc_session.dart';
 import 'package:app_dart/src/views/error/network_error.dart';
 import 'package:app_dart/src/views/member/member_list_screen.dart';
-import 'package:device_info/device_info.dart';
+import 'package:client_information/client_information.dart';
+// import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -69,6 +71,10 @@ class TagReadModel with ChangeNotifier {
   bool isUidActivated = false;
 
   Future<String?> handleTag(NfcTag tag, BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final phoneImei = prefs.getString('phoneImei') ?? '';
+    final device = prefs.getString('device') ?? '';
+
     this.tag = tag;
     additionalData = {};
 
@@ -98,8 +104,8 @@ class TagReadModel with ChangeNotifier {
           final url = Uri.parse(updateUidCard);
 
           final baseUrl = BaseUrl();
-          final androidInfo = await DeviceInfoPlugin().androidInfo;
-          final imei = androidInfo.androidId;
+          // final androidInfo = await DeviceInfoPlugin().androidInfo;
+          final imei = phoneImei;
 
           final Map<String, dynamic> postData = {
             'value': uidHex,
@@ -118,8 +124,9 @@ class TagReadModel with ChangeNotifier {
             final message = data['message'];
             print(message);
             if (success == true) {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
               prefs.setBool('isUidActivated', true);
+              prefs.setBool('waitingUidApproval', true);
+
               // Respons sesuai dengan yang diharapkan
               showDialog(
                 context: context,
@@ -165,13 +172,15 @@ class TagReadModel with ChangeNotifier {
                 },
               );
             } else if (message.isNotEmpty) {
+              prefs.setBool('waitingUidApproval', true);
+              sendRequestToAPI(imei, uidHex);
               showDialog(
                 context: context,
                 builder: (context) {
                   return AlertDialog(
                     backgroundColor: AppColor.dangerColor,
                     contentTextStyle: TextStyle(color: Colors.white),
-                    title: Text('Gagal Mendaftarkan Kartu!',
+                    title: Text('Validasi Kartu !',
                         style: TextStyle(color: Colors.white)),
                     content: Text(
                       message,
@@ -210,7 +219,7 @@ class TagReadModel with ChangeNotifier {
                     title: Text('Gagal Mendaftarkan Kartu!',
                         style: TextStyle(color: Colors.white)),
                     content: Text(
-                      'Kartu Anda gagal didaftarkan. Silakan coba lagi.',
+                      'Kartu Anda gagal didaftarkan. Silahkan coba lagi.',
                       style: TextStyle(color: Colors.white),
                     ),
                     actions: <Widget>[

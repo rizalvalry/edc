@@ -1,5 +1,7 @@
+import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/views/member/member_detail_screen.dart';
 import 'package:flutter/material.dart';
+
 import '../../models/member.dart';
 
 class MemberSearchDelegateCustom extends SearchDelegate<List<Member>> {
@@ -85,7 +87,9 @@ class MemberSearchDelegateCustom extends SearchDelegate<List<Member>> {
           );
         }
         return const Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: AppColor.baseColor,
+          ),
         );
       },
     );
@@ -143,7 +147,9 @@ class MemberSearchDelegateCustom extends SearchDelegate<List<Member>> {
           );
         }
         return const Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: AppColor.baseColor,
+          ),
         );
       },
     );

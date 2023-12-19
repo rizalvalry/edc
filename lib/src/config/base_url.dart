@@ -39,6 +39,11 @@ class BaseUrl {
       'https://wartelsus.mitrakitajaya.com/edc/notifapi';
 // // END URL UTAMA
 
+// oneSignal LOST CARD
+  static const String getNotifCardLostBaseUrl =
+      'https://wartelsus.mitrakitajaya.com/edc/notifcard';
+// // END URL UTAMA
+
   static Future<String> getServerIpAddress() async {
     final prefs = await SharedPreferences.getInstance();
     final serverIpAddress = prefs.getString('serveripaddress') ??

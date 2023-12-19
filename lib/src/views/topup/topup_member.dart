@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable, unnecessary_import, use_key_in_widget_constructors, library_private_types_in_public_api, prefer_final_fields
 
 import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/config/app_text.dart';
 import 'package:app_dart/src/views/topup/nfc_session.dart';
 import 'package:app_dart/src/views/topup/tag_read.dart';
 import 'package:flutter/material.dart';
@@ -60,20 +61,24 @@ class _TopUpMemberScreenState extends State<TopUpMemberScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
-            onPressed: () {
-              Navigator.of(context).pop();
-            }),
-        backgroundColor: AppColor.baseColor,
-        title: Text(
-          'Top-Up Member - Cabang ${widget.kodeCabang}',
-          style: TextStyle(color: AppColor.darkOrange),
+          icon: const Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
+        backgroundColor: AppColor.baseColor,
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: AppText(
+            'Top-Up Member - Cabang ${widget.kodeCabang}',
+            style: TextStyle(color: AppColor.darkOrange),
+          ),
+        ),
+        centerTitle: false, // Mengatur judul ke kiri
       ),
       body: SingleChildScrollView(
-        // Ganti menjadi SingleChildScrollView
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(10.0),
           child: Card(
             elevation: 4.0,
             margin: const EdgeInsets.all(16.0),

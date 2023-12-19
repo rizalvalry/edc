@@ -10,7 +10,8 @@ import 'package:app_dart/src/controllers/imei.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/auth/permission.dart';
 import 'package:app_dart/src/views/error/network_error.dart';
-import 'package:device_info/device_info.dart';
+import 'package:client_information/client_information.dart';
+// import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'src/views/member_search_delegate.dart';
@@ -33,6 +34,10 @@ Future<void> main() async {
 
     if (response.statusCode == 200) {
       runApp(SplashScreen());
+
+      final prefs = await SharedPreferences.getInstance();
+      final phoneImei = prefs.getString('phoneImei') ?? '';
+      final device = prefs.getString('device') ?? '';
 
       final data = json.decode(response.body);
       final results = data['results'];
@@ -66,14 +71,14 @@ Future<void> main() async {
         });
 
         if (rc == '02' || rc == '01') {
-          AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
+          // AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
 
-          String imei = androidInfo.brand;
-          String model = androidInfo.androidId;
+          String imei = device;
+          String model = phoneImei;
           sendRequestToLocalhostAPI(imei, model, rc);
         } else if (rc == '00') {
-          AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
-          String imei = androidInfo.androidId;
+          // AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
+          String imei = phoneImei;
           print(imei);
 
           final baseUrl = BaseUrl();
@@ -147,13 +152,17 @@ class MyApp extends StatelessWidget {
     } else if (rc == '00') {
       // Perangkat diizinkan
       return MaterialApp(
-        title: 'Daftar Member',
+        // theme: AppTheme.lightAppTheme,
         home: MemberListScreen(
           members: MemberController()
               .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
           currentSort: 'ASC',
         ),
         debugShowCheckedModeBanner: false,
+      );
+    } else {
+      Container(
+        child: Center(child: Text("Terjadi Kesalahan Pada Jaringan")),
       );
     }
 

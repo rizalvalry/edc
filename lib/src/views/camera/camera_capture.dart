@@ -254,10 +254,16 @@ class _ImageUploadState extends State<ImageUpload> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: const [
-                                  Icon(Icons.camera_alt),
+                                  Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                  ),
                                   SizedBox(
                                       width: 5), // Jarak antara ikon dan teks
-                                  Text("Capture IMAGE"),
+                                  Text(
+                                    "Ambil Gambar",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                                 ],
                               ),
                             ),
@@ -316,7 +322,10 @@ class _ImageUploadState extends State<ImageUpload> {
                           // Tampilkan loading indicator saat isLoading adalah true
                           color: AppColor.darkOrange,
                         )
-                      : Icon(Icons.done_all),
+                      : Icon(
+                          Icons.done_all,
+                          color: Colors.white,
+                        ),
                   label: isLoading
                       ? Opacity(
                           opacity: 0.5,

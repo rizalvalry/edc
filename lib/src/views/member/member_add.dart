@@ -5,6 +5,7 @@ import 'dart:convert';
 // ignore_for_file: use_key_in_widget_constructors
 
 import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/config/app_text.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/camera/camera_capture.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+// ignore: must_be_immutable
 class MemberAdd extends StatelessWidget {
   final TextEditingController registrationIdController =
       TextEditingController();
@@ -23,6 +25,7 @@ class MemberAdd extends StatelessWidget {
   final TextEditingController roomController = TextEditingController();
   final TextEditingController caseController = TextEditingController();
 
+  // ignore: unused_field
   final MemberController _controller = MemberController();
   String branchid = '';
   String userId = '';
@@ -194,7 +197,7 @@ class MemberAdd extends StatelessWidget {
         ),
         backgroundColor: AppColor.baseColor,
         // ignore: prefer_const_constructors
-        title: Text(
+        title: AppText(
           'Tambah Anggota',
           style: const TextStyle(color: AppColor.darkOrange),
         ),
@@ -205,31 +208,37 @@ class MemberAdd extends StatelessWidget {
         children: [
           TextFormField(
             controller: registrationIdController,
+            textCapitalization: TextCapitalization.words,
             // ignore: prefer_const_constructors
             decoration: InputDecoration(labelText: 'ID Registrasi'),
           ),
           TextFormField(
             controller: registrationNameController,
+            textCapitalization: TextCapitalization.words,
             // ignore: prefer_const_constructors
             decoration: InputDecoration(labelText: 'Nama Registrasi'),
           ),
           TextFormField(
             controller: memberNameController,
+            textCapitalization: TextCapitalization.words,
             // ignore: prefer_const_constructors
             decoration: InputDecoration(labelText: 'Nama Keanggotaan'),
           ),
           TextFormField(
             controller: areaController,
+            textCapitalization: TextCapitalization.words,
             // ignore: prefer_const_constructors
             decoration: InputDecoration(labelText: 'Area'),
           ),
           TextFormField(
             controller: roomController,
+            textCapitalization: TextCapitalization.words,
             // ignore: prefer_const_constructors
             decoration: InputDecoration(labelText: 'Kamar'),
           ),
           TextFormField(
             controller: caseController,
+            textCapitalization: TextCapitalization.words,
             // ignore: prefer_const_constructors
             decoration: InputDecoration(labelText: 'Perkara'),
           ),
@@ -256,7 +265,10 @@ class MemberAdd extends StatelessWidget {
                   Size(200.0, 50.0),
                 ),
               ),
-              child: const Text('Submit'),
+              child: const Text(
+                'SUBMIT',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
         ],
@@ -271,7 +283,9 @@ buildShowDialog(BuildContext context) {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: AppColor.baseColor,
+          ),
         );
       });
 }

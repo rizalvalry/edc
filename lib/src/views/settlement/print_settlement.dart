@@ -2,6 +2,8 @@
 
 import 'dart:typed_data';
 
+import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/config/app_text.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -205,15 +207,20 @@ class PrintSettlement extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
+        title: AppText(title),
+        backgroundColor: AppColor.baseColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
+          onPressed: () {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => MemberListScreen(
+                members: MemberController()
+                    .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
+                currentSort: 'ASC',
+              ),
+            ));
+          },
+        ),
       ),
       body: Card(
         elevation: 4,
@@ -224,9 +231,11 @@ class PrintSettlement extends StatelessWidget {
             itemBuilder: (context, index) {
               final transaction = transactions[index];
               return ListTile(
-                title: Text('Invoice ID: ${transaction['INVOICEID']}'),
-                subtitle:
-                    Text('Transaction Time: ${transaction['TRANSTIMESTAMP']}'),
+                title: Text('Invoice ID: ${transaction['INVOICEID']}',
+                    style: TextStyle(color: Colors.black)),
+                subtitle: Text(
+                    'Transaction Time: ${transaction['TRANSTIMESTAMP']}',
+                    style: TextStyle(color: Colors.black)),
                 // trailing: ElevatedButton(
                 //   onPressed: () {
                 //     // Tambahkan logika untuk re-print di sini

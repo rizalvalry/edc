@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/config/app_text.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/models/member_detail.dart';
@@ -194,8 +195,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
           ));
         },
       ),
-      title: const Text("Detail Member",
-          style: TextStyle(color: AppColor.darkOrange)),
+      title: const AppText("Detail Member"),
       actions: [
         Row(
           children: [
@@ -312,7 +312,10 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
                   // Tampilkan loading indicator saat isLoading adalah true
                   color: AppColor.darkOrange,
                 )
-              : const Text("Update"),
+              : const Text(
+                  "UPDATE",
+                  style: TextStyle(color: Colors.white),
+                ),
         ),
         const SizedBox(height: 20),
       ],
@@ -358,7 +361,9 @@ class _MemberDetailScreenState extends State<MemberDetailScreen>
               future: MemberController().loadImage(imageUrl),
               builder: (context, imageSnapshot) {
                 if (imageSnapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return const CircularProgressIndicator(
+                    color: AppColor.darkOrange,
+                  );
                 } else if (imageSnapshot.hasError) {
                   return const Icon(Icons.error);
                 } else {
@@ -410,6 +415,7 @@ class CustomTextField extends StatelessWidget {
           const SizedBox(height: 8.0),
           TextField(
             controller: controller,
+            textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
               labelText: label,
               border: myInputBorder(),

@@ -1,11 +1,14 @@
 // ignore_for_file: unnecessary_null_comparison, prefer_const_constructors, library_prefixes, use_key_in_widget_constructors, unnecessary_string_interpolations, deprecated_member_use
 
 import 'package:app_dart/src/config/app_color.dart';
+import 'package:app_dart/src/config/app_text.dart';
 import 'package:app_dart/src/config/flare_animation_widget.dart';
+import 'package:app_dart/src/controllers/member_controller.dart';
+import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Import library untuk format rupiah
-import 'package:pdf/widgets.dart' as pdfLib;
 import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pdfLib;
 import 'package:printing/printing.dart';
 
 class PrintInvoice extends StatelessWidget {
@@ -181,8 +184,20 @@ class PrintInvoice extends StatelessWidget {
     return Scaffold(
         key: scaffoldKey,
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: AppColor.darkOrange),
+            onPressed: () {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => MemberListScreen(
+                  members: MemberController()
+                      .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
+                  currentSort: 'ASC',
+                ),
+              ));
+            },
+          ),
           backgroundColor: AppColor.baseColor,
-          title: Text(title),
+          title: AppText(title),
         ),
         body: Card(
           elevation: 4, // Nilai elevation yang Anda inginkan

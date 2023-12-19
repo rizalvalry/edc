@@ -15,6 +15,7 @@ import '../../controllers/member_controller.dart';
 import '../../models/member.dart';
 
 class MemberListScreen extends StatelessWidget {
+  // ignore: unused_field
   final MemberController _controller = MemberController();
   Future<List<Member>> members;
   final String currentSort;
@@ -53,6 +54,7 @@ class MemberListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: AppColor.darkOrange),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(15),
@@ -64,7 +66,8 @@ class MemberListScreen extends StatelessWidget {
         ),
         title: const Text(
           'Daftar Member',
-          style: TextStyle(color: AppColor.darkOrange),
+          style: TextStyle(
+              color: AppColor.darkOrange, fontWeight: FontWeight.w500),
         ),
         backgroundColor: AppColor.baseColor,
         actions: [
@@ -80,19 +83,23 @@ class MemberListScreen extends StatelessWidget {
         ],
       ),
       drawer: Container(
-          width: MediaQuery.of(context).size.width * 0.6,
+          width: MediaQuery.of(context).size.width * 0.7,
           child: CustomDrawer()),
       drawerEdgeDragWidth: MediaQuery.of(context).size.width * 0.5,
       body: RefreshIndicator(
+        color: AppColor.baseColor,
         onRefresh: () async =>
             onRefresh?.call(context) ?? _defaultOnRefresh(context),
         child: FutureBuilder<List<Member>>(
           future: members,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return Center(
+                  child: CircularProgressIndicator(
+                color: AppColor.baseColor,
+              ));
             } else if (snapshot.hasError) {
-              return NetworkErrorPage(); // Tampilkan NetworkErrorPage dengan onRefresh yang sesuai
+              return NetworkErrorPage();
             } else {
               final memberList = snapshot.data ?? [];
               return AlphabeticScrollPage(
@@ -114,19 +121,14 @@ class MemberListScreen extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.orangeAccent, // Warna shadow
-              offset:
-                  Offset(0, 2), // Geser shadow secara horizontal dan vertikal
-              blurRadius: 4.0, // Besarnya blur shadow
-              spreadRadius: 1.0, // Seberapa tersebar shadow
+              color: Colors.orangeAccent,
+              offset: Offset(0, 2),
+              blurRadius: 4.0,
+              spreadRadius: 1.0,
             ),
           ],
         ),
         child: FloatingActionButton(
-          child: Icon(
-            Icons.add,
-            color: Colors.black,
-          ),
           onPressed: () {
             Navigator.push(
               context,
@@ -136,6 +138,12 @@ class MemberListScreen extends StatelessWidget {
             );
           },
           backgroundColor: AppColor.darkOrange,
+          elevation: 0.0, // Nolkan elevation di sini
+          shape: CircleBorder(),
+          child: Icon(
+            Icons.add,
+            color: Colors.black,
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -169,12 +177,12 @@ class MemberListScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Icon(
-                        Icons.home,
+                        Icons.refresh,
                         color: AppColor.darkOrange,
                         size: 20,
                       ),
                       Text(
-                        'Home',
+                        'Syncronize',
                         style: TextStyle(
                           color: AppColor.darkOrange,
                           fontSize: 10,

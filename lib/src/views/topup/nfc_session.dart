@@ -3,8 +3,6 @@
 import 'dart:io';
 
 import 'package:app_dart/src/config/app_color.dart';
-import 'package:app_dart/src/controllers/member_controller.dart';
-import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 
@@ -109,7 +107,9 @@ class _AndroidSessionDialogState extends State<_AndroidSessionDialog> {
   Widget build(BuildContext context) {
     if (_isNFCScanning) {
       return Center(
-        child: CircularProgressIndicator(), // Tampilkan indikator loading
+        child: CircularProgressIndicator(
+          color: AppColor.darkOrange,
+        ), // Tampilkan indikator loading
       );
     }
     // if (_showFlareAnimation) {
@@ -154,17 +154,19 @@ class _AndroidSessionDialogState extends State<_AndroidSessionDialog> {
             style: TextStyle(color: Colors.white),
           ),
           onPressed: () => {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => MemberListScreen(
-                  members: MemberController().fetchMembers(
-                    sort: 'LEVE_MEMBERNAME',
-                    dir: 'ASC',
-                  ),
-                  currentSort: 'ASC',
-                ),
-              ),
-            ),
+            Navigator.of(context).pop(),
+
+            // Navigator.of(context).pushReplacement(
+            //   MaterialPageRoute(
+            //     builder: (context) => MemberListScreen(
+            //       members: MemberController().fetchMembers(
+            //         sort: 'LEVE_MEMBERNAME',
+            //         dir: 'ASC',
+            //       ),
+            //       currentSort: 'ASC',
+            //     ),
+            //   ),
+            // ),
           },
         ),
       ],

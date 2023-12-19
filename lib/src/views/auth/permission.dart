@@ -1,11 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:app_dart/main.dart';
 import 'package:app_dart/src/config/base_url.dart';
 import 'package:app_dart/src/controllers/imei.dart';
-import 'package:device_info/device_info.dart';
+// import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -68,8 +68,10 @@ class _PermissionState extends State<Permission> {
 
   Future<String> fetchData() async {
     await BaseUrl.initialize(); // Inisialisasi BaseUrl dengan serverIpAddress
-    final url = await buildDeviceAuthorizedURL();
+    final url = await buildDeviceAuthCheck();
     final response = await http.get(Uri.parse(url));
+    final prefs = await SharedPreferences.getInstance();
+    final phoneImei = prefs.getString('phoneImei') ?? '';
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -90,15 +92,16 @@ class _PermissionState extends State<Permission> {
           print('serveripaddress: $serverIpAddress');
 
           // Simpan data ke SharedPreferences
-          final prefs = await SharedPreferences.getInstance();
+
           await prefs.setString('rc', rc);
           await prefs.setString('responseMessage', responseMessage);
           await prefs.setString('kodecabang', kodeCabang);
           await prefs.setString('serveripaddress', serverIpAddress);
 
           // Dapatkan data dari API
-          AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
-          String imei = androidInfo.androidId;
+          // AndroidDeviceInfo androidInfo = await DeviceInfoPlugin().androidInfo;
+
+          String imei = phoneImei;
           final apiUrl = await BaseUrl.getUserIdByImeiUrlDirectly(imei);
           final responseApi = await http.get(Uri.parse(apiUrl));
 

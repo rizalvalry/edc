@@ -25,6 +25,68 @@ String getGreeting() {
   }
 }
 
+class ActivationStatus {
+  final bool isUidActivated;
+  final bool waitingUidApproval;
+
+  ActivationStatus(this.isUidActivated, this.waitingUidApproval);
+}
+
+Future<ActivationStatus> _manageUidActivation(BuildContext context,
+    {bool reset = false}) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool isUidActivated = prefs.getBool('isUidActivated') ?? false;
+  bool waitingUidApproval = prefs.getBool('waitingUidApproval') ?? false;
+
+  if (reset) {
+    // Jika perlu mereset UID, tampilkan dialog konfirmasi
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Konfirmasi Reset UID'),
+          content: Text('Apakah Anda yakin ingin mereset UID?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Reset nilai isUidActivated dan waitingUidApproval di SharedPreferences
+                await prefs.setBool('isUidActivated', false);
+                await prefs.setBool('waitingUidApproval', false);
+
+                // Pindah ke halaman MemberListScreen setelah mereset UID
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MemberListScreen(
+                      members: MemberController()
+                          .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
+                      currentSort: 'ASC',
+                    ),
+                  ),
+                );
+              },
+              child: Text('Reset'),
+            ),
+          ],
+        );
+      },
+    );
+  } else {
+    // Tampilkan nilai isUidActivated
+    print('UID Activation Status: $isUidActivated');
+    print('Approval: $waitingUidApproval');
+  }
+
+  return ActivationStatus(isUidActivated, waitingUidApproval);
+}
+
+// ignore: must_be_immutable
 class CustomDrawer extends StatelessWidget {
   String actionType = 'uid';
 
@@ -46,69 +108,73 @@ class CustomDrawer extends StatelessWidget {
     }
   }
 
-  Future<bool> _manageUidActivation(BuildContext context,
-      {bool reset = false}) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isUidActivated = prefs.getBool('isUidActivated') ?? false;
+  // Future<bool> _manageUidActivation(BuildContext context,
+  //     {bool reset = false}) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   bool isUidActivated = prefs.getBool('isUidActivated') ?? false;
+  //   bool waitingUidApproval = prefs.getBool('waitingUidApproval') ?? false;
 
-    print(isUidActivated);
-    if (reset) {
-      // Jika perlu mereset UID, tampilkan dialog konfirmasi
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Konfirmasi Reset UID'),
-            content: Text('Apakah Anda yakin ingin mereset UID?'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Tutup dialog
-                },
-                child: Text('Batal'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  // Reset nilai isUidActivated di SharedPreferences
-                  await prefs.setBool('isUidActivated', false);
+  //   if (reset) {
+  //     // Jika perlu mereset UID, tampilkan dialog konfirmasi
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: Text('Konfirmasi Reset UID'),
+  //           content: Text('Apakah Anda yakin ingin mereset UID?'),
+  //           actions: <Widget>[
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop(); // Tutup dialog
+  //               },
+  //               child: Text('Batal'),
+  //             ),
+  //             TextButton(
+  //               onPressed: () async {
+  //                 // Reset nilai isUidActivated di SharedPreferences
+  //                 await prefs.setBool('isUidActivated', false);
+  //                 await prefs.setBool('waitingUidApproval', false);
 
-                  // Pindah ke halaman MemberListScreen setelah mereset UID
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MemberListScreen(
-                        members: MemberController()
-                            .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
-                        currentSort: 'ASC',
-                      ),
-                    ),
-                  );
-                },
-                child: Text('Reset'),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      // Tampilkan nilai isUidActivated
-      print('UID Activation Status: $isUidActivated');
-    }
+  //                 // Pindah ke halaman MemberListScreen setelah mereset UID
+  //                 Navigator.pushReplacement(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                     builder: (context) => MemberListScreen(
+  //                       members: MemberController()
+  //                           .fetchMembers(sort: 'LEVE_MEMBERNAME', dir: 'ASC'),
+  //                       currentSort: 'ASC',
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //               child: Text('Reset'),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   } else {
+  //     // Tampilkan nilai isUidActivated
+  //     print('UID Activation Status: $isUidActivated');
+  //     print('Approval: $waitingUidApproval');
+  //   }
 
-    // Ganti tipe kembalian menjadi Future<bool>
-    return isUidActivated;
-  }
+  //   // Ganti tipe kembalian menjadi Future<bool>
+  //   return isUidActivated;
+  // }
 
   @override
   Widget build(BuildContext context) {
     double deviceHeight = MediaQuery.of(context).size.height;
     return Drawer(
-      child: FutureBuilder<bool>(
-        // Ganti FutureBuilder dengan tipe data boolean
+      child: FutureBuilder<ActivationStatus>(
         future: _manageUidActivation(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            bool isUidActivated = snapshot.data ?? false;
+            bool isUidActivated = snapshot.data?.isUidActivated ?? false;
+            bool waitingUidApproval =
+                snapshot.data?.waitingUidApproval ?? false;
+            print(waitingUidApproval);
 
             return ListView(
               padding: EdgeInsets.zero,
@@ -124,7 +190,7 @@ class CustomDrawer extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'PT. Anugerah Vata',
+                            'PT. Anugerah Vata Abadi',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -134,43 +200,45 @@ class CustomDrawer extends StatelessWidget {
                           Text(
                             getGreeting(),
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Color.fromARGB(255, 255, 255, 255),
                             ),
                           ),
                           SizedBox(height: 10),
                           ClipOval(
                             child: Image.asset(
                               getImagePathBasedOnTime(),
-                              width: 80,
-                              height: 80,
+                              width: 65,
+                              height: 65,
                               fit: BoxFit.cover,
                             ),
                           ),
                         ],
                       ),
-                      IconButton(
-                        icon: Column(
-                          children: [
-                            Icon(
-                              Icons.settings,
-                              color: Colors.white,
-                              size: 15,
-                            ),
-                            Text(
-                              'Reset UID',
-                              style: TextStyle(
-                                fontSize: 5,
-                                color: Colors.white,
+                      isUidActivated || waitingUidApproval
+                          ? IconButton(
+                              icon: Column(
+                                children: [
+                                  Icon(
+                                    Icons.settings,
+                                    color: Colors.white,
+                                    size: 15,
+                                  ),
+                                  Text(
+                                    'Reset UID',
+                                    style: TextStyle(
+                                      fontSize: 5,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                        onPressed: () {
-                          _manageUidActivation(context, reset: true);
-                        },
-                      ),
+                              onPressed: () {
+                                _manageUidActivation(context, reset: true);
+                              },
+                            )
+                          : Container(),
                     ],
                   ),
                 ),
@@ -264,14 +332,18 @@ class CustomDrawer extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Aktifkan UID',
+                                      waitingUidApproval
+                                          ? 'Menunggu Persetujuan'
+                                          : 'Aktifkan UID Anda',
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     Text(
-                                      'Aktifkan UID Anda',
+                                      waitingUidApproval
+                                          ? 'Menunggu Persetujuan'
+                                          : 'Aktifkan UID Anda',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: AppColor.baseColor,
@@ -295,7 +367,9 @@ class CustomDrawer extends StatelessWidget {
           } else {
             // Tampilkan loading atau widget lain selama Future belum selesai
             return Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: AppColor.baseColor,
+              ),
             );
           }
         },

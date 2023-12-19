@@ -1,10 +1,13 @@
+// ignore_for_file: unused_local_variable
+
+import 'dart:convert';
+
 import 'package:app_dart/src/config/app_color.dart';
 import 'package:app_dart/src/controllers/member_controller.dart';
 import 'package:app_dart/src/views/member/member_list_screen.dart';
 import 'package:app_dart/src/views/topup/print_invoice.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class LogTopUpPage extends StatefulWidget {
   @override
@@ -123,7 +126,7 @@ class _LogTopUpPageState extends State<LogTopUpPage> {
               // ),
               Text(
                 '$responseMessageValue',
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18, color: AppColor.darkOrange),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
